@@ -13,19 +13,18 @@ using std::vector;
 
 class Cube{
     protected:
-        vec3 vertices[8];
-        vec3 indices[12];
-        vec3 color;
-    public:
-        Cube(vec3 color) : color(color), 
-                            vertices({vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1),
-                                      vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1)}),
-                            indices({vec3(0,1,2), vec3(2,3,0), 
+        vec3 vertices[8] = { vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1),
+                                      vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1) };
+        vec3 indices[12] = {vec3(0,1,2), vec3(2,3,0), 
                                      vec3(1, 5, 6), vec3(6, 2 ,1),
                                      vec3(5, 4, 7), vec3(7, 6 ,5),
                                      vec3(4, 0, 3), vec3(3, 7 ,4),
                                      vec3(3, 2, 6), vec3(6, 7 ,3),
-                                     vec3(1, 0, 4), vec3(4, 5 ,1)}){};
+                                     vec3(1, 0, 4), vec3(4, 5 ,1)};
+        vec3 color;
+    public:
+        Cube() : color(vec3(0)){};
+        Cube(vec3 color) : color(color) {};
         vec3 getColor() {  return this->color; };
         
         vector<float> getVB() {
@@ -55,5 +54,9 @@ class Cube{
                 indices.push_back(tri.z);
             }
             return indices;
+        }
+
+        void setColor(const vec3 &color) {
+            this->color = color;
         }
 };

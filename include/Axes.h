@@ -10,7 +10,7 @@ class Axes{
 
 
     public:
-        Axes() : right(1, 0, 0), up(0, 1, 0), forward(0, 0, 1) {};
+        Axes(vec3 origin) : origin(origin), right(1, 0, 0), up(0, 1, 0), forward(0, 0, 1) {};
         glm::mat4 localToGlobal() {
             return glm::mat4(right.x, right.y, right.z, origin.x,
                              up.x, up.y, up.z, origin.y,
