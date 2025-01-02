@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 using glm::vec3;
+using glm::ivec3;
 using std::vector;
 
 /*Cube orientation:
@@ -14,13 +15,13 @@ using std::vector;
 class Cube{
     protected:
         vec3 vertices[8] = { vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1),
-                                      vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1) };
-        vec3 indices[12] = {vec3(0,1,2), vec3(2,3,0), 
-                                     vec3(1, 5, 6), vec3(6, 2 ,1),
-                                     vec3(5, 4, 7), vec3(7, 6 ,5),
-                                     vec3(4, 0, 3), vec3(3, 7 ,4),
-                                     vec3(3, 2, 6), vec3(6, 7 ,3),
-                                     vec3(1, 0, 4), vec3(4, 5 ,1)};
+                                      vec3(-1,-1,1), vec3(1,-1,1), vec3(1,1,1), vec3(-1,1,1) };
+        ivec3 indices[12] = {ivec3(0,1,2), ivec3(2,3,0), 
+                                     ivec3(1, 5, 6), ivec3(6, 2 ,1),
+                                     ivec3(5, 4, 7), ivec3(7, 6 ,5),
+                                     ivec3(4, 0, 3), ivec3(3, 7 ,4),
+                                     ivec3(3, 2, 6), ivec3(6, 7 ,3),
+                                     ivec3(1, 0, 4), ivec3(4, 5 ,1)};
         vec3 color;
     public:
         Cube() : color(vec3(0)){};
@@ -39,14 +40,14 @@ class Cube{
                 vb.push_back(this->color.g);
                 vb.push_back(this->color.b);
                 //vertex texcoords
-                vb.push_back(0.0);
-                vb.push_back(0.0);
+                vb.push_back((vertex.x+1)/2);
+                vb.push_back((vertex.y+1)/2);
             }
             return vb;
         };
 
-        vector<float> getIndices() {
-            vector<float> indices;
+        vector<int> getIndices() {
+            vector<int> indices;
             for(vec3 tri : this->indices){
                 //vertex pos
                 indices.push_back(tri.x);

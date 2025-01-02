@@ -13,6 +13,7 @@
 #include <Camera.h>
 
 #include <iostream>
+#include <Cube.h>
 
 /* Window size */
 const unsigned int width = 800;
@@ -70,7 +71,8 @@ int main(int argc, char* argv[])
 
     /* Print OpenGL version after completing initialization */
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-
+    Cube cube = Cube();
+    cube.setColor(vec3(1, 0, 0));
     /* Set scope so that on widow close the destructors will be called automatically */
     {
         /* Blend to fix images with transperancy */
@@ -79,8 +81,22 @@ int main(int argc, char* argv[])
 
         /* Generate VAO, VBO, EBO and bind them */
         VertexArray va;
-        VertexBuffer vb(vertices, sizeof(vertices));
-        IndexBuffer ib(indices, sizeof(indices));
+        vector<float>cubeVertices = cube.getVB();
+        vector<int>trias = cube.getIndices();
+
+        float vs[cubeVertices.size()];
+        std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
+        
+        for (int i = 0; i < cubeVertices.size(); i++) {
+            std::cout << vs[i] << " ";
+        }
+
+        unsigned int indices2[trias.size()];
+        
+        std::copy(trias.begin(), trias.end(), indices2);
+
+        VertexBuffer vb(vs, sizeof(vs));
+        IndexBuffer ib(indices2, sizeof(indices2));
 
         VertexBufferLayout layout;
         layout.Push<float>(3);  // positions
@@ -89,7 +105,7 @@ int main(int argc, char* argv[])
         va.AddBuffer(vb, layout);
 
         /* Create texture */
-        Texture texture("res/textures/white.png");
+        Texture texture("res/textures/uiia.png");
         texture.Bind();
          
         /* Create shaders */
@@ -109,7 +125,7 @@ int main(int argc, char* argv[])
         Camera camera(width, height);
         camera.SetOrthographic(near, far);
         camera.EnableInputs(window);
-
+        float count = 0;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
@@ -123,10 +139,10 @@ int main(int argc, char* argv[])
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
              /* Initialize the model Translate, Rotate and Scale matrices */
-            glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-            glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f));
-            glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-
+            glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+            glm::mat4 rot = glm::rotate(glm::mat4(1.0f), count, glm::vec3(0, 1, 0.1));
+            glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(0.6f));
+            count += 0.1;
             /* Initialize the MVP matrices */ 
             glm::mat4 model = trans * rot * scl;
             glm::mat4 view = camera.GetViewMatrix();
