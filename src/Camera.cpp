@@ -10,6 +10,16 @@ void Camera::SetOrthographic(float near, float far)
     m_View = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
 }
 
+void Camera::SetPerspective(float near, float far, float FOV)
+{
+    m_Near = near;
+    m_Far = far;
+
+    // Rest Projection and View matrices
+    m_Projection = glm::perspective(FOV, 1.0f, near, far);
+    m_View = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
+}
+
 /////////////////////
 // Input Callbacks //
 /////////////////////

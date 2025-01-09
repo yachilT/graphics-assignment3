@@ -113,7 +113,11 @@ class Cube{
         }
 
         Axes getAxes() {return axes; };
-        void setAxes(const Axes &axes) { this->axes = axes; }
+        void setAxes(const Axes &axes) { 
+            this->axes = axes;
+
+            std::cout << "o: " << glm::to_string(axes.origin) << std::endl;
+        }
         
         vector<float> getVB() {
             vector<float> vb;
@@ -180,5 +184,15 @@ class Cube{
             this->color[3] = vec3(0xff/255.0, 0x58/255.0, 0x00/255.0);
             this->color[4] = vec3(0xff/255.0, 0xff/255.0, 0xff/255.0);
             this->color[5] = vec3(0xff/255.0, 0xd5/255.0, 0x00/255.0);
+        }
+
+        // rotate around Axis origin  (origin remains the same)
+        void localRotate(float angle, vec3 axis) {
+            this->axes.localRotate(angle, axis);
+        }
+
+        //rotate around (0,0,0) (origin moves too)
+        void originRotate(float angle, vec3 axis) {
+            this->axes.originRotate(angle, axis);
         }
 };

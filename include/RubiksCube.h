@@ -20,16 +20,6 @@ class RubiksCube{
     protected:
         Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
-        RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
-
-            for (int row = 0; row < CUBE_DIM; row++) {
-                for (int col = 0; col < CUBE_DIM; col++) {
-                    for (int layer; layer < CUBE_DIM; layer++) {
-                        cubes[indexFlatten(row, col, layer)].setAxes(Axes(vec3(row - CUBE_DIM / 2, col - CUBE_DIM / 2, layer - CUBE_DIM / 2)));
-                    }
-                }
-            }
-        };
 
         vector<int> getIndices(int fixed, int dir){
             assert(0 <= fixed < CUBE_DIM);
@@ -57,7 +47,20 @@ class RubiksCube{
         }
 
     public:
-        RubiksCube(): localAxes(vec3(0)) {}
+        RubiksCube(): RubiksCube(vec3(0)) {}
+
+        RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
+
+            for (int row = 0; row < CUBE_DIM; row++) {
+                for (int col = 0; col < CUBE_DIM; col++) {
+                    for (int layer = 0; layer < CUBE_DIM; layer++) {
+                        Axes axes(vec3((row - CUBE_DIM / 2), (col - CUBE_DIM / 2), (layer - CUBE_DIM / 2)));
+                        axes.scale(.5f);
+                        cubes[indexFlatten(row, col, layer)].setAxes(axes);
+                    }
+                }
+            }
+        };
         int indexFlatten(int row, int columns, int layer){
             return layer * pow(CUBE_DIM, 2) + row * CUBE_DIM + columns;
         }
@@ -89,5 +92,19 @@ class RubiksCube{
 
         glm::mat4 getModelMat(int i) {
             return this->localAxes.localToGlobal() * cubes[i].getAxes().localToGlobal();
+        }
+
+        // rotate around Axis origin  (origin remains the same)
+        void localRotate(float angle, vec3 axis) {
+            this->localAxes.localRotate(angle, axis);
+        }
+
+        //rotate around (0,0,0) (origin moves too)
+        void originRotate(float angle, vec3 axis) {
+            this->localAxes.originRotate(angle, axis);
+        }
+
+        void scale(float s) {
+            this->localAxes.scale(s);
         }
 };

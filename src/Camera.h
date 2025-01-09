@@ -49,6 +49,8 @@ class Camera
         // Update Projection matrix for Orthographic mode
         void SetOrthographic(float near, float far);
 
+        void SetPerspective(float near, float far, float FOV);
+
         // Handle camera inputs
         void EnableInputs(GLFWwindow* window);
 
