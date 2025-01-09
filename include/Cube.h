@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 #include <vector>
+#include "Axes.h"
 using glm::vec3;
 using glm::ivec3;
 using std::vector;
@@ -13,6 +14,7 @@ using std::vector;
 */
 
 #define NUM_FACES 6
+#define VERTECIES_PER_FACE 4
 
 class Cube{
     protected:
@@ -24,8 +26,11 @@ class Cube{
         //                              ivec3(4, 0, 3), ivec3(3, 7 ,4), //left
         //                              ivec3(3, 2, 6), ivec3(6, 7 ,3), //top
         //                              ivec3(1, 0, 4), ivec3(4, 5 ,1)}; //bottom
-        vec3 color;
-        //Front side
+        vec3 color[NUM_FACES];
+        Axes axes;
+
+
+        // returns indices of vertices according to position in vertices array of cube
         vector<int> getFrontVex(){
             vector<int> vex;
             vex.push_back(0);
@@ -35,7 +40,6 @@ class Cube{
             return vex;
         }
 
-        //Right side
         vector<int> getRightVex(){
             vector<int> vex;
             vex.push_back(1);
@@ -46,7 +50,6 @@ class Cube{
         }
         
 
-        //Back side
         vector<int> getBackVex(){
             vector<int> vex;
             vex.push_back(5);
@@ -56,7 +59,6 @@ class Cube{
             return vex;
         }
 
-        //Top side
         vector<int> getTopVex(){
             vector<int> vex;
             vex.push_back(3);
@@ -66,7 +68,6 @@ class Cube{
             return vex;
         }
 
-        // left side
         vector<int> getLeftVex() {
             vector<int> vex;
             vex.push_back(4);
@@ -105,9 +106,14 @@ class Cube{
             }
         }
     public:
-        Cube() : color(vec3(0)){};
-        Cube(vec3 color) : color(color) {};
-        vec3 getColor() {  return this->color; };
+        Cube() : Cube(Axes(vec3(0, 0, 0))){}
+
+        Cube(Axes axes) : axes(axes) {
+            this->setDefaultColors();
+        }
+
+        Axes getAxes() {return axes; };
+        void setAxes(const Axes &axes) { this->axes = axes; }
         
         vector<float> getVB() {
             vector<float> vb;
@@ -120,29 +126,30 @@ class Cube{
                     vb.push_back(this->vertices[vexIndices[j]].z);
 
                     //vertex color
-                    vb.push_back(this->color.r);
-                    vb.push_back(this->color.g);
-                    vb.push_back(this->color.b);
+                    vb.push_back(this->color[i].r);
+                    vb.push_back(this->color[i].g);
+                    vb.push_back(this->color[i].b);
+
+                    //std::cout << i << ": " << "(" << this->color[i].r << ", " << this->color[i].g << ", " << this->color[i].b << ")" << std::endl;
 
                     
                     // vertex texture coords
-
                     switch(j) {
                         case 0:
                             vb.push_back(0.0f);
                             vb.push_back(0.0f);
                             break;
                         case 1:
-                            vb.push_back(0.0f);
                             vb.push_back(1.0f);
+                            vb.push_back(0.0f);
                             break;
                         case 2:
                             vb.push_back(1.0f);
                             vb.push_back(1.0f);
                             break;
                         case 3:
-                            vb.push_back(1.0f);
-                            vb.push_back(0.0f); 
+                            vb.push_back(0.0f);
+                            vb.push_back(1.0f); 
                             break;                                                                                 
                     }
                 }
@@ -153,22 +160,25 @@ class Cube{
 
         vector<int> getIndices() {
             vector<int> indices;
-            vector<int> currSide;
             for(int i = 0; i < NUM_FACES; i++){
                 //vertex pos
-                currSide = getFace(i+1);
-                indices.push_back(0 + i * currSide.size());
-                indices.push_back(1 + i * currSide.size());
-                indices.push_back(2 + i * currSide.size());
+                indices.push_back(0 + i * VERTECIES_PER_FACE);
+                indices.push_back(1 + i * VERTECIES_PER_FACE);
+                indices.push_back(2 + i * VERTECIES_PER_FACE);
 
-                indices.push_back(2 + i * currSide.size());
-                indices.push_back(3 + i * currSide.size());
-                indices.push_back(0 + i * currSide.size());
+                indices.push_back(2 + i * VERTECIES_PER_FACE);
+                indices.push_back(3 + i * VERTECIES_PER_FACE);
+                indices.push_back(0 + i * VERTECIES_PER_FACE);
             }
             return indices;
         }
 
-        void setColor(const vec3 &color) {
-            this->color = color;
+        void setDefaultColors(){
+            this->color[0] = vec3(0x00/255.0, 0x9b/255.0, 0x48/255.0);
+            this->color[1] = vec3(0xb7/255.0, 0x12/255.0, 0x34/255.0);
+            this->color[2] = vec3(0x00/255.0, 0x46/255.0, 0xad/255.0);
+            this->color[3] = vec3(0xff/255.0, 0x58/255.0, 0x00/255.0);
+            this->color[4] = vec3(0xff/255.0, 0xff/255.0, 0xff/255.0);
+            this->color[5] = vec3(0xff/255.0, 0xd5/255.0, 0x00/255.0);
         }
 };

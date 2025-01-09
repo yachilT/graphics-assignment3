@@ -12,16 +12,22 @@ using std::pow;
 
 /* Cube Topology to indexes:
    going by layers, from front to back,
-   by rows, left to right, top to buttom
+   by cols, left to right, 
+   by row bottom to top,
 */
 
 class RubiksCube{
     protected:
         Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
-        RubiksCube(vec3 pos) : localAxes(Axes(pos)){
-            for(Cube& cube : this->cubes){
-                cube.setColor(vec3(1, 0 ,0));
+        RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
+
+            for (int row = 0; row < CUBE_DIM; row++) {
+                for (int col = 0; col < CUBE_DIM; col++) {
+                    for (int layer; layer < CUBE_DIM; layer++) {
+                        cubes[indexFlatten(row, col, layer)].setAxes(Axes(vec3(row - CUBE_DIM / 2, col - CUBE_DIM / 2, layer - CUBE_DIM / 2)));
+                    }
+                }
             }
         };
 
@@ -51,9 +57,12 @@ class RubiksCube{
         }
 
     public:
+        RubiksCube(): localAxes(vec3(0)) {}
         int indexFlatten(int row, int columns, int layer){
-            return row * CUBE_DIM + columns, layer * pow(CUBE_DIM, 2);
+            return layer * pow(CUBE_DIM, 2) + row * CUBE_DIM + columns;
         }
+
+
         vector<int> getLayerInwards(int layer){
             assert(0 <= layer < CUBE_DIM);
             return getIndices(layer, FORWARD_TO_INWARDS);
@@ -67,5 +76,18 @@ class RubiksCube{
         vector<int> getLayerTopToButtom(int row){
             assert(0 <= row < CUBE_DIM);
             return getIndices(row, TOP_TO_BOTTOM);
+        }
+
+        
+        vector<float> getVBCube(int i) {
+            return cubes[i].getVB();
+        }
+
+        vector<int> getIndicesCube(int i) {
+            return cubes[i].getIndices();
+        }
+
+        glm::mat4 getModelMat(int i) {
+            return this->localAxes.localToGlobal() * cubes[i].getAxes().localToGlobal();
         }
 };

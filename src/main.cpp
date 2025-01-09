@@ -13,7 +13,7 @@
 #include <Camera.h>
 
 #include <iostream>
-#include <Cube.h>
+#include <RubiksCube.h>
 
 /* Window size */
 const unsigned int width = 800;
@@ -71,53 +71,19 @@ int main(int argc, char* argv[])
 
     /* Print OpenGL version after completing initialization */
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-    Cube cube = Cube();
-    cube.setColor(vec3(1, 1, 1));
+    RubiksCube cube = RubiksCube();
     /* Set scope so that on widow close the destructors will be called automatically */
     {
         /* Blend to fix images with transperancy */
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-        /* Generate VAO, VBO, EBO and bind them */
-        VertexArray va;
-        vector<float>cubeVertices = cube.getVB();
-        vector<int>trias = cube.getIndices();
-
-        float vs[cubeVertices.size()];
-        std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
-        
-        for (int i = 0; i < cubeVertices.size(); i++) {
-            std::cout << vs[i] << " ";
-        }
-
-        unsigned int indices2[trias.size()];
-        
-        std::copy(trias.begin(), trias.end(), indices2);
-
-        VertexBuffer vb(vs, sizeof(vs));
-        IndexBuffer ib(indices2, sizeof(indices2));
-
-        VertexBufferLayout layout;
-        layout.Push<float>(3);  // positions
-        layout.Push<float>(3);  // colors
-        layout.Push<float>(2);  // texCoords
-        va.AddBuffer(vb, layout);
-
         /* Create texture */
-        Texture texture("res/textures/uiia.png");
+        Texture texture("res/textures/plane.png");
         texture.Bind();
-         
+        
         /* Create shaders */
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
-
-        /* Unbind all to prevent accidentally modifying them */
-        va.Unbind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
-
         /* Enables the Depth Buffer */
     	GLCall(glEnable(GL_DEPTH_TEST));
 
@@ -134,29 +100,57 @@ int main(int argc, char* argv[])
 
             /* Render here */
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-            /* Initialize uniform color */
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
-             /* Initialize the model Translate, Rotate and Scale matrices */
-            glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
-            glm::mat4 rot = glm::rotate(glm::mat4(1.0f), count, glm::vec3(0, 1, 0.1));
-            glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(0.6f));
-            count += 0.1;
-            /* Initialize the MVP matrices */ 
-            glm::mat4 model = trans * rot * scl;
-            glm::mat4 view = camera.GetViewMatrix();
-            glm::mat4 proj = camera.GetProjectionMatrix();
-            glm::mat4 mvp = proj * view * model;
 
-            /* Update shaders paramters and draw to the screen */
-            shader.Bind();
-            shader.SetUniform4f("u_Color", color);
-            shader.SetUniformMat4f("u_MVP", mvp);
-            shader.SetUniform1i("u_Texture", 0);
-            va.Bind();
-            ib.Bind();
-            GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+            for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
+                VertexArray va;
+
+                vector<float>cubeVertices = cube.getVBCube(i);
+                vector<int>trias = cube.getIndicesCube(i);
+
+                float vs[cubeVertices.size()];
+                std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
+
+                // for (int i = 0; i < 24; i++) {
+                //     std::cout << i <<  ": (" << vs[8 * i] << ", " << vs[8 * i + 1] << ", " << vs[8 * i + 2] << ") (" << vs[8 * i + 3] << ", " << vs[8 * i + 4] << ", " << vs[8 * i + 5] << ") (" << vs[8 * i + 6] << ", " << vs[8 * i + 7] << ")" << std::endl;
+                // }
+
+
+                //std::cout << "-----------------------------------------" << std::endl ;
+                
+                unsigned int indices2[trias.size()];
+                
+                std::copy(trias.begin(), trias.end(), indices2);
+
+                // for (int i = 0; i < 6; i++) {
+                //     std::cout << trias[6 * i] << " -> " << trias[6*i + 1] << " -> " << trias[6*i + 2] << " | " << trias[6 * i + 3] << " -> " << trias[6*i + 4] << " -> " << trias[6*i + 5] << std::endl;
+                // }
+                VertexBuffer vb(vs, sizeof(vs));
+                IndexBuffer ib(indices2, sizeof(indices2));
+
+                VertexBufferLayout layout;
+                layout.Push<float>(3);  // positions
+                layout.Push<float>(3);  // colors
+                layout.Push<float>(2);  // texCoords
+                va.AddBuffer(vb, layout);
+
+
+                glm::mat4 model = cube.getModelMat(i);
+                glm::mat4 view = camera.GetViewMatrix();
+                glm::mat4 proj = camera.GetProjectionMatrix();
+                glm::mat4 mvp = proj * view * model;
+
+                /* Update shaders paramters and draw to the screen */
+                shader.Bind();
+                shader.SetUniform4f("u_Color", color);
+                shader.SetUniformMat4f("u_MVP", mvp);
+                shader.SetUniform1i("u_Texture", 0);
+                va.Bind();
+                ib.Bind();
+                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+
+            }
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);

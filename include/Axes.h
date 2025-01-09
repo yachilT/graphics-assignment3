@@ -1,4 +1,6 @@
+#pragma once
 #include <glm/glm.hpp>
+
 using glm::vec3;
 
 class Axes{
@@ -17,4 +19,7 @@ class Axes{
                              forward.x, forward.y, forward.z, origin.z,
                              0, 0, 0, 1);
         };
+
+
+
 };

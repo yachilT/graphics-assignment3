@@ -53,5 +53,9 @@ copy_res_w:
 	@echo "Copying resources for Windows..."
 	xcopy /E /I /Y ${workspaceFolder}\src\res ${workspaceFolder}\bin\res
 
+# clean:
+#     @echo "Cleaning..."
+#     rm -f ${workspaceFolder}\bin\main ${workspaceFolder}\bin\*.o
+
 # Parallel build (add -jN option to run with N jobs)
-.PHONY: all copy_res_m copy_res_w
+.PHONY: all copy_res_m copy_res_w clean
