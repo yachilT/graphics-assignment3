@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     /* Print OpenGL version after completing initialization */
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
     Cube cube = Cube();
-    cube.setColor(vec3(1, 0, 0));
+    cube.setColor(vec3(1, 1, 1));
     /* Set scope so that on widow close the destructors will be called automatically */
     {
         /* Blend to fix images with transperancy */
