@@ -1,5 +1,4 @@
 #define GLM_ENABLE_EXPERIMENTAL 1
-#define M_PI 3.14159265358979323846f
 #define SCALE 2.0f
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,6 +22,7 @@
 const unsigned int width = 800;
 const unsigned int height = 800;
 
+
 // const float FOVdegree = 45.0f;  // Field Of View Angle
 const float near = 0.1f;
 const float far = 100.0f;
@@ -35,6 +35,7 @@ float vertices[] = {
      0.5f,  0.5f,  0.5f,    0.0f, 0.0f, 1.0f,    1.0f, 1.0f,  // Top-right
     -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 0.0f,    0.0f, 1.0f,  // Top-left
 };
+
 
 /* Indices for vertices order */
 unsigned int indices[] = {
@@ -51,7 +52,10 @@ int main(int argc, char* argv[])
     {
         return -1;
     }
-    
+
+
+
+
     /* Set OpenGL to Version 3.3.0 */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -77,11 +81,16 @@ int main(int argc, char* argv[])
     /* Control frame rate */
     glfwSwapInterval(1);
 
+
+
+
+
+
     /* Print OpenGL version after completing initialization */
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-    RubiksCube cube = RubiksCube(vec3(0, 0, -5));
     /* Set scope so that on window close the destructors will be called automatically */
     {
+
         /* Blend to fix images with transperancy */
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -90,19 +99,29 @@ int main(int argc, char* argv[])
         texture.Bind();
         
 
+
         /* Create shaders */
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
         /* Enables the Depth Buffer */
     	GLCall(glEnable(GL_DEPTH_TEST));
 
+        RubiksCube cube = RubiksCube(vec3(0, 0, 5));
+        //Cube cube(vec3(0, 0, 5));
+
+
         /* Create camera */
-        Camera camera(width, height);
+        Camera camera(width, height, &cube);
         camera.SetPerspective(near, far, M_PI / 4);
+        //camera.SetOrthographic(near, far);
         camera.EnableInputs(window);
         float count = 0.1f;
+        cube.localRotate(count, vec3(1, 1, 0));
 
-        std::cout << "ours: " << glm::to_string(cube.getModelMat(0)) << std::endl;
+
+
+
+        //std::cout << "ours: " << glm::to_string(cube.getModelMat(0)) << std::endl;
 
         cube.scale(SCALE / CUBE_DIM);
         /* Loop until the user closes the window */
@@ -112,15 +131,14 @@ int main(int argc, char* argv[])
             GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 
 
-
             /* Render here */
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
 
-            cube.localRotate(count, vec3(1, 1, 0));
+            //cube.localRotate(count, vec3(1, 1, 0));
             for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-                // if (i == 0) {
+                //if (i == 0) {
                     VertexArray va;
 
                     vector<float>cubeVertices = cube.getVBCube(i);
@@ -153,12 +171,13 @@ int main(int argc, char* argv[])
                     layout.Push<float>(2);  // texCoords
                     va.AddBuffer(vb, layout);
 
-
+                    
                     glm::mat4 model = cube.getModelMat(i);
                     //std::cout << glm::to_string(model) << std::endl;
                     glm::mat4 view = camera.GetViewMatrix();
                     glm::mat4 proj = camera.GetProjectionMatrix();
                     glm::mat4 mvp = proj * view * model;
+
 
                     /* Update shaders paramters and draw to the screen */
                     shader.Bind();
@@ -175,6 +194,7 @@ int main(int argc, char* argv[])
 
 
             }
+
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);

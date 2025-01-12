@@ -1,7 +1,9 @@
+#pragma once
 #include <glm/glm.hpp>
 #include "Cube.h"
 #include <Axes.h>
 #include <math.h>
+#define M_PI 3.14159265358979323846f
 
 #define CUBE_DIM 3
 #define FORWARD_TO_INWARDS 0
@@ -18,8 +20,10 @@ using std::pow;
 
 class RubiksCube{
     protected:
+        int i;
         Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
+        float currDegree;
 
         vector<int> getIndices(int fixed, int dir){
             assert(0 <= fixed < CUBE_DIM);
@@ -50,11 +54,12 @@ class RubiksCube{
         RubiksCube(): RubiksCube(vec3(0)) {}
 
         RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
-
+            i = 0;
+            this->currDegree = M_PI/2.0;
             for (int row = 0; row < CUBE_DIM; row++) {
                 for (int col = 0; col < CUBE_DIM; col++) {
                     for (int layer = 0; layer < CUBE_DIM; layer++) {
-                        Axes axes(vec3((row - CUBE_DIM / 2), (col - CUBE_DIM / 2), (layer - CUBE_DIM / 2)));
+                        Axes axes(vec3((col - CUBE_DIM / 2), (row - CUBE_DIM / 2), (layer - CUBE_DIM / 2)));
                         axes.scale(.5f);
                         cubes[indexFlatten(row, col, layer)].setAxes(axes);
                     }
@@ -106,5 +111,16 @@ class RubiksCube{
 
         void scale(float s) {
             this->localAxes.scale(s);
+        }
+
+        void rotate_right_wall(){
+            vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
+            vec3 rot_axis = vec3(1,0,0);
+            for(int i: indices){
+                this->cubes[i].originRotate(this->currDegree, rot_axis);
+            }
+
+            
+
         }
 };

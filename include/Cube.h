@@ -1,6 +1,10 @@
+#pragma once
 #include <glm/glm.hpp>
 #include <vector>
 #include "Axes.h"
+# include <iostream>
+#include <glm/gtx/string_cast.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 using glm::vec3;
 using glm::ivec3;
 using std::vector;
@@ -19,14 +23,14 @@ using std::vector;
 class Cube{
     protected:
         vec3 vertices[8] = { vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1),
-                                      vec3(-1,-1,1), vec3(1,-1,1), vec3(1,1,1), vec3(-1,1,1) };
+                                      vec3(1,-1,1), vec3(-1,-1,1), vec3(-1,1,1), vec3(1,1,1) };
         // ivec3 indices[12] = {ivec3(0,1,2), ivec3(2,3,0), //front
         //                              ivec3(1, 5, 6), ivec3(6, 2 ,1), //right
         //                              ivec3(5, 4, 7), ivec3(7, 6 ,5), //back
         //                              ivec3(4, 0, 3), ivec3(3, 7 ,4), //left
         //                              ivec3(3, 2, 6), ivec3(6, 7 ,3), //top
         //                              ivec3(1, 0, 4), ivec3(4, 5 ,1)}; //bottom
-        vec3 color[NUM_FACES];
+        vec3 color[NUM_FACES + 2]; // remove
         Axes axes;
 
 
@@ -43,8 +47,8 @@ class Cube{
         vector<int> getRightVex(){
             vector<int> vex;
             vex.push_back(1);
-            vex.push_back(5);
-            vex.push_back(6);
+            vex.push_back(4);
+            vex.push_back(7);
             vex.push_back(2);
             return vex;
         }
@@ -52,10 +56,10 @@ class Cube{
 
         vector<int> getBackVex(){
             vector<int> vex;
-            vex.push_back(5);
             vex.push_back(4);
-            vex.push_back(7);
+            vex.push_back(5);
             vex.push_back(6);
+            vex.push_back(7);
             return vex;
         }
 
@@ -63,26 +67,26 @@ class Cube{
             vector<int> vex;
             vex.push_back(3);
             vex.push_back(2);
-            vex.push_back(6);
             vex.push_back(7);
+            vex.push_back(6);
             return vex;
         }
 
         vector<int> getLeftVex() {
             vector<int> vex;
-            vex.push_back(4);
+            vex.push_back(5);
             vex.push_back(0);
             vex.push_back(3);
-            vex.push_back(7);
+            vex.push_back(6);
             return vex;
         }
 
         vector<int> getBottomVex() {
             vector<int> vex;
-            vex.push_back(4);
+            vex.push_back(5);
             vex.push_back(0);
             vex.push_back(1);
-            vex.push_back(5);
+            vex.push_back(4);
             return vex;
         }
 
@@ -106,10 +110,15 @@ class Cube{
             }
         }
     public:
+        bool marked = false;
         Cube() : Cube(Axes(vec3(0, 0, 0))){}
 
         Cube(Axes axes) : axes(axes) {
             this->setDefaultColors();
+
+            for (int i = 0; i < 8; i++) {
+                std::cout << "vertex " << i << " " << glm::to_string(vertices[i]) << ": " << glm::to_string(color[i]) << std::endl;
+            }
         }
 
         Axes getAxes() {return axes; };
@@ -119,6 +128,15 @@ class Cube{
             std::cout << "o: " << glm::to_string(axes.origin) << std::endl;
         }
         
+        void setColor(vec3 c){
+            this->color[0] = c;
+            this->color[1] = c;
+            this->color[2] = c;
+            this->color[3] = c;
+            this->color[4] = c;
+            this->color[5] = c;
+        }
+
         vector<float> getVB() {
             vector<float> vb;
             for (int i = 0; i < NUM_FACES; i++) {
@@ -133,6 +151,10 @@ class Cube{
                     vb.push_back(this->color[i].r);
                     vb.push_back(this->color[i].g);
                     vb.push_back(this->color[i].b);
+
+                    // vb.push_back(this->color[vexIndices[j]].r);
+                    // vb.push_back(this->color[vexIndices[j]].g);
+                    // vb.push_back(this->color[vexIndices[j]].b);
 
                     //std::cout << i << ": " << "(" << this->color[i].r << ", " << this->color[i].g << ", " << this->color[i].b << ")" << std::endl;
 
@@ -184,6 +206,8 @@ class Cube{
             this->color[3] = vec3(0xff/255.0, 0x58/255.0, 0x00/255.0);
             this->color[4] = vec3(0xff/255.0, 0xff/255.0, 0xff/255.0);
             this->color[5] = vec3(0xff/255.0, 0xd5/255.0, 0x00/255.0);
+            this->color[6] = vec3(168/255.0, 50/255.0, 127/255.0);
+            this->color[7] = vec3(0/255.0, 0/255.0, 0/255.0);
         }
 
         // rotate around Axis origin  (origin remains the same)
