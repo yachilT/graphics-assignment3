@@ -90,8 +90,40 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
             case GLFW_KEY_R:
                 std::cout << "R Pressed" << std::endl;
                 camera->getCube()->rotate_right_wall();
-
                 break;
+            case GLFW_KEY_L:
+                std::cout << "L Pressed" << std::endl;
+                camera->getCube()->rotate_left_wall();
+                break;
+            case GLFW_KEY_SPACE:
+                std::cout << "SPACE Pressed" << std::endl;
+                camera->getCube()->flipAngle();
+                break;
+            case GLFW_KEY_Z:
+                std::cout << "Z Pressed" << std::endl;
+                camera->getCube()->divDegree();
+                break;
+            case GLFW_KEY_A:
+                std::cout << "SPACE Pressed" << std::endl;
+                camera->getCube()->mulDegree();
+                break;
+
+            // case GLFW_KEY_U:
+            //     std::cout << "U Pressed" << std::endl;
+            //     camera->getCube()->rotate_top_wall();
+            //     break;
+            // case GLFW_KEY_D:
+            //     std::cout << "D Pressed" << std::endl;
+            //     camera->getCube()-rotate_bottom_wall();
+            //     break;
+            // case GLFW_KEY_B:
+            //     std::cout << "B Pressed" << std::endl;
+            //     camera->getCube()-rotate_back_wall();
+            //     break;
+            // case GLFW_KEY_F:
+            //     std::cout << "F Pressed" << std::endl;
+            //     camera->getCube()-rotate_front_wall();
+            //     break;
             default:
                 break;
         }
@@ -124,8 +156,10 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     camera->m_OldMouseY = currMouseY;
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
+    {   
         std::cout << "MOUSE LEFT Motion" << std::endl;
+        camera->getCube()->localRotate((camera->m_NewMouseX - camera->m_OldMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
+        camera->getCube()->localRotate((camera->m_NewMouseY - camera->m_OldMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
@@ -140,8 +174,15 @@ void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffse
         std::cout << "Warning: Camera wasn't set as the Window User Pointer! ScrollCallback is skipped" << std::endl;
         return;
     }
-
-    std::cout << "SCROLL Motion" << std::endl;
+    if(scrollOffsetY > 0){
+        std::cout << "SCROLL UP Motion" << std::endl;
+        camera->getCube()->moveZ(-SCROLL_OFFSET);
+    }
+    else if(scrollOffsetY < 0){
+        std::cout << "SCROLL DOWN Motion" << std::endl;
+        camera->getCube()->moveZ(SCROLL_OFFSET);
+    }
+    
 }
 
 void Camera::EnableInputs(GLFWwindow* window)

@@ -57,9 +57,9 @@ class RubiksCube{
         RubiksCube(): RubiksCube(vec3(0)) {}
 
         RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
-            this->currDegree = M_PI/2.0;
+            this->currDegree = M_PI/8.0;
             acc_angle = 0;
-            angle_dx = 0.2f;
+            angle_dx = 0.02f;
             rotating = false;
             for (int row = 0; row < CUBE_DIM; row++) {
                 for (int col = 0; col < CUBE_DIM; col++) {
@@ -75,6 +75,9 @@ class RubiksCube{
             return layer * pow(CUBE_DIM, 2) + row * CUBE_DIM + columns;
         }
 
+        Cube getCube(int row, int col, int layer) {
+            return cubes[indexFlatten(row, col, layer)];
+        }
 
         vector<int> getLayerInwards(int layer){
             assert(0 <= layer < CUBE_DIM);
@@ -101,6 +104,7 @@ class RubiksCube{
         }
 
         glm::mat4 getModelMat(int i) {
+
             return this->localAxes.localToGlobal() * cubes[i].getAxes().localToGlobal();
         }
 
@@ -134,8 +138,46 @@ class RubiksCube{
         }
 
         void rotate_right_wall(){
-            if (!rotating) {
-                rotating = true;
+            // if (!rotating) {
+            //     rotating = true;
+            // }
+            vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
+            vec3 rot_axis = vec3(1,0,0);
+            for(int i: indices){
+                    this->cubes[i].originRotate(currDegree, rot_axis);
             }
+
+            //this->cubes[indices[0]].setColor(vec3(1,0,1));
+            //std::cout << "RIGHT WALL: origin: " << glm::to_string(cubes[indices[0]].getAxes().origin) << std::endl;
+            //std::cout << "right: " << glm::to_string(cubes[indices[0]].getAxes().right) << "up: " << glm::to_string(cubes[indices[0]].getAxes().up) << "forward: " << glm::to_string(cubes[indices[0]].getAxes().forward) << std::endl;
+        }
+
+        void rotate_left_wall() {
+            vector<int> indices = getLayerLeftToRight(0);
+            vec3 rot_axis = vec3(-1,0,0);
+            for(int i: indices){
+                    this->cubes[i].originRotate(currDegree, rot_axis);
+            }
+
+            // this->cubes[indices[0]].setColor(vec3(1,0,1));
+            //std::cout << "LEFT WALL origin: " << glm::to_string(cubes[indices[0]].getAxes().origin) << std::endl;
+            //std::cout << "right: " << glm::to_string(cubes[indices[0]].getAxes().right) << "up: " << glm::to_string(cubes[indices[0]].getAxes().up) << "forward: " << glm::to_string(cubes[indices[0]].getAxes().forward) << std::endl;
+        
+        }
+
+        void flipAngle(){
+            this->currDegree = -this->currDegree;
+        }
+
+        void mulDegree(){
+            if(this->currDegree < M_PI) this->currDegree = 2.0f*this->currDegree; 
+        }
+
+        void divDegree(){
+            if(this->currDegree > M_PI/4.0f) this->currDegree = 0.5f * this->currDegree;
+        }
+
+        void moveZ(float z_offset){
+            this->localAxes.origin.z += z_offset;
         }
 };

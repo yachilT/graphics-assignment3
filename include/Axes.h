@@ -36,16 +36,23 @@ class Axes{
 
         // rotate around Axis origin  (origin remains the same)
         void localRotate(float angle, vec3 axis) {
-            this->right = glm::rotate(glm::mat4(1.0f), angle, axis) * glm::vec4(this->right, 1);
-            this->up = glm::rotate(glm::mat4(1.0f), angle, axis) * glm::vec4(this->up, 1);
-            this->forward = glm::rotate(glm::mat4(1.0f), angle, axis) * glm::vec4(this->forward, 1);
+            glm::mat4 id = glm::mat4(1.0f);
+            this->right = glm::rotate(id, angle, axis) * glm::vec4(this->right, 1);
+            this->up = glm::rotate(id, angle, axis) * glm::vec4(this->up, 1);
+            this->forward = glm::rotate(id, angle, axis) * glm::vec4(this->forward, 1);
         }
 
         //rotate around (0,0,0) (origin moves too)
         void originRotate(float angle, vec3 axis) {
+            glm::mat4 id = glm::mat4(1.0f);
+            glm::vec4 D4origin = glm::vec4(this->origin, 1);
+            this->right = glm::rotate(id, angle, axis) *(D4origin + glm::vec4(this->right, 1));
+            this->up = glm::rotate(id, angle, axis) * (D4origin + glm::vec4(this->up, 1));
+            this->forward = glm::rotate(id, angle, axis) *(D4origin + glm::vec4(this->forward, 1));
             glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), angle, axis);
             this->origin = rotMat * glm::vec4(this->origin, 1);
-            localRotate(angle, -axis);
+            localRotate(angle, axis);
+            
         }
 
         void scale(float s) {
