@@ -45,7 +45,7 @@ class Axes{
         void originRotate(float angle, vec3 axis) {
             glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), angle, axis);
             this->origin = rotMat * glm::vec4(this->origin, 1);
-            localRotate(angle, axis);
+            localRotate(angle, -axis);
         }
 
         void scale(float s) {

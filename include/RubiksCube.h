@@ -20,7 +20,10 @@ using std::pow;
 
 class RubiksCube{
     protected:
-        int i;
+
+        bool rotating;
+        float acc_angle;
+        float angle_dx;
         Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
         float currDegree;
@@ -54,8 +57,10 @@ class RubiksCube{
         RubiksCube(): RubiksCube(vec3(0)) {}
 
         RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
-            i = 0;
             this->currDegree = M_PI/2.0;
+            acc_angle = 0;
+            angle_dx = 0.2f;
+            rotating = false;
             for (int row = 0; row < CUBE_DIM; row++) {
                 for (int col = 0; col < CUBE_DIM; col++) {
                     for (int layer = 0; layer < CUBE_DIM; layer++) {
@@ -113,14 +118,24 @@ class RubiksCube{
             this->localAxes.scale(s);
         }
 
-        void rotate_right_wall(){
-            vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
-            vec3 rot_axis = vec3(1,0,0);
-            for(int i: indices){
-                this->cubes[i].originRotate(this->currDegree, rot_axis);
+        void update() {
+            if (rotating) {
+                vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
+                vec3 rot_axis = vec3(1,0,0);
+                for(int i: indices){
+                    this->cubes[i].originRotate(glm::min(this->angle_dx, currDegree - acc_angle), rot_axis);
+                }
+                acc_angle += angle_dx;
+                if (acc_angle >= currDegree) {
+                    rotating = false;
+                    acc_angle = 0;
+                }
             }
+        }
 
-            
-
+        void rotate_right_wall(){
+            if (!rotating) {
+                rotating = true;
+            }
         }
 };

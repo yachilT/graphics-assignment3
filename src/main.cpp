@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
-
+            cube.update();
             //cube.localRotate(count, vec3(1, 1, 0));
             for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
                 //if (i == 0) {
