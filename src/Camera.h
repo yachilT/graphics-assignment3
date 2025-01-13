@@ -2,7 +2,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define SCROLL_OFFSET 0.1f
-#define ROTATE_ANGLE_SCALE 0.0001f
+#define ROTATE_ANGLE_SCALE 0.001f
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

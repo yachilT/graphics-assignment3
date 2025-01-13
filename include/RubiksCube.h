@@ -3,14 +3,16 @@
 #include "Cube.h"
 #include <Axes.h>
 #include <math.h>
+#include "Rotation.h"
+#include <deque>
 #define M_PI 3.14159265358979323846f
 
 #define CUBE_DIM 3
-#define FORWARD_TO_INWARDS 0
-#define LEFT_TO_RIGHT 1
-#define TOP_TO_BOTTOM 2
+#define DT 1.0f
+#define ANGLE_SPEED 0.07f
 
 using std::pow;
+using std::deque;
 
 /* Cube Topology to indexes:
    going by layers, from front to back,
@@ -21,11 +23,11 @@ using std::pow;
 class RubiksCube{
     protected:
 
-        bool rotating;
-        float acc_angle;
-        float angle_dx;
+        int rotatingAxis;
         Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
+        deque<Rotation*> rotations;
+
         float currDegree;
 
         vector<int> getIndices(int fixed, int dir){
@@ -42,7 +44,7 @@ class RubiksCube{
                     case LEFT_TO_RIGHT:
                         indices.push_back(indexFlatten(i, fixed, j));
                         break;
-                    case TOP_TO_BOTTOM:
+                    case BOTTOM_TO_TOP:
                         indices.push_back(indexFlatten(fixed, i, j));
                         break;
                     default:
@@ -57,14 +59,14 @@ class RubiksCube{
         RubiksCube(): RubiksCube(vec3(0)) {}
 
         RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
-            this->currDegree = M_PI/8.0;
-            acc_angle = 0;
-            angle_dx = 0.02f;
-            rotating = false;
+            currDegree = M_PI / 2.0f;
+            rotatingAxis = -1;
             for (int row = 0; row < CUBE_DIM; row++) {
                 for (int col = 0; col < CUBE_DIM; col++) {
                     for (int layer = 0; layer < CUBE_DIM; layer++) {
-                        Axes axes(vec3((col - CUBE_DIM / 2), (row - CUBE_DIM / 2), (layer - CUBE_DIM / 2)));
+
+                        float half = CUBE_DIM / 2.0f - glm::dot(this->localAxes.forward, this->localAxes.forward) / 2.0f;
+                        Axes axes(vec3((col - half), (row - half), (layer - half)));
                         axes.scale(.5f);
                         cubes[indexFlatten(row, col, layer)].setAxes(axes);
                     }
@@ -91,7 +93,7 @@ class RubiksCube{
 
         vector<int> getLayerTopToButtom(int row){
             assert(0 <= row < CUBE_DIM);
-            return getIndices(row, TOP_TO_BOTTOM);
+            return getIndices(row, BOTTOM_TO_TOP);
         }
 
         
@@ -123,46 +125,67 @@ class RubiksCube{
         }
 
         void update() {
-            if (rotating) {
-                vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
-                vec3 rot_axis = vec3(1,0,0);
-                for(int i: indices){
-                    this->cubes[i].originRotate(glm::min(this->angle_dx, currDegree - acc_angle), rot_axis);
-                }
-                acc_angle += angle_dx;
-                if (acc_angle >= currDegree) {
-                    rotating = false;
-                    acc_angle = 0;
+            for (int i = rotations.size(); i > 0; i--) {
+                Rotation* rot = rotations.at(0);
+                rotations.pop_front();
+
+                if (!rot->shouldTerminate()) {
+                    float da = rot->update(DT);
+                    vector<int> indices;
+                    vec3 rotAxis(0,0,0);
+                    switch (rot->getDir()) {
+                        case FORWARD_TO_INWARDS:
+                            indices = getLayerInwards(rot->getDirID());
+                            rotAxis = vec3(0,0,1);
+                            break;
+                        case BOTTOM_TO_TOP:
+                            indices = getLayerTopToButtom(rot->getDirID());
+                            rotAxis = vec3(0,1,0);
+                            break;
+                        case LEFT_TO_RIGHT:
+                            indices = getLayerLeftToRight(rot->getDirID());
+                            rotAxis = vec3(1,0,0);
+                            break;
+                    }
+
+                    
+                    for(int i: indices){
+                        this->cubes[i].originRotate(da, rotAxis);
+                    }
+                    rotations.push_back(rot);
                 }
             }
+
+            if (rotations.size() == 0)
+                rotatingAxis = -1; 
+
+                
+        }
+        
+        void rotate_wall(int dir, int layer) {
+            if (rotatingAxis != -1 && rotatingAxis != dir) return;
+
+            rotatingAxis = dir;
+            Rotation * r = new Rotation(dir, layer);
+            
+            r->startRotation(currDegree, ANGLE_SPEED);
+            rotations.push_back(r);
         }
 
         void rotate_right_wall(){
-            // if (!rotating) {
-            //     rotating = true;
-            // }
-            vector<int> indices = getLayerLeftToRight(CUBE_DIM - 1);
-            vec3 rot_axis = vec3(1,0,0);
-            for(int i: indices){
-                    this->cubes[i].originRotate(currDegree, rot_axis);
-            }
-
-            //this->cubes[indices[0]].setColor(vec3(1,0,1));
-            //std::cout << "RIGHT WALL: origin: " << glm::to_string(cubes[indices[0]].getAxes().origin) << std::endl;
-            //std::cout << "right: " << glm::to_string(cubes[indices[0]].getAxes().right) << "up: " << glm::to_string(cubes[indices[0]].getAxes().up) << "forward: " << glm::to_string(cubes[indices[0]].getAxes().forward) << std::endl;
+            rotate_wall(LEFT_TO_RIGHT, CUBE_DIM - 1);
         }
 
         void rotate_left_wall() {
-            vector<int> indices = getLayerLeftToRight(0);
-            vec3 rot_axis = vec3(-1,0,0);
-            for(int i: indices){
-                    this->cubes[i].originRotate(currDegree, rot_axis);
-            }
+            rotate_wall(LEFT_TO_RIGHT, 0);
+        }
 
-            // this->cubes[indices[0]].setColor(vec3(1,0,1));
-            //std::cout << "LEFT WALL origin: " << glm::to_string(cubes[indices[0]].getAxes().origin) << std::endl;
-            //std::cout << "right: " << glm::to_string(cubes[indices[0]].getAxes().right) << "up: " << glm::to_string(cubes[indices[0]].getAxes().up) << "forward: " << glm::to_string(cubes[indices[0]].getAxes().forward) << std::endl;
-        
+        void rotate_top_wall() {
+            rotate_wall(BOTTOM_TO_TOP, CUBE_DIM - 1); 
+        }
+
+        void rotate_bottom_wall() {
+            rotate_wall(BOTTOM_TO_TOP, 0);
         }
 
         void flipAngle(){
@@ -170,11 +193,11 @@ class RubiksCube{
         }
 
         void mulDegree(){
-            if(this->currDegree < M_PI) this->currDegree = 2.0f*this->currDegree; 
+            if(glm::abs(this->currDegree) < M_PI) this->currDegree = 2.0f * this->currDegree; 
         }
 
         void divDegree(){
-            if(this->currDegree > M_PI/4.0f) this->currDegree = 0.5f * this->currDegree;
+            if(glm::abs(this->currDegree) > M_PI/4.0f) this->currDegree = 0.5f * this->currDegree;
         }
 
         void moveZ(float z_offset){

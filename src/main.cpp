@@ -118,12 +118,19 @@ int main(int argc, char* argv[])
         float count = 0.1f;
         cube.localRotate(count, vec3(1, 1, 0));
 
-        int row = 2;
-        int col = 2;
+        int row = 0;
+        int col = 0;
         int layer = 0;
 
 
-        std::cout << "cube at: (" << row << ", " << col << ", " << layer << ") = " << cube.indexFlatten(row, col, layer) << " pos: " << glm::to_string(cube.getCube(row, col, layer).getAxes().origin) << std::endl;
+        //std::cout << "cube at: (" << row << ", " << col << ", " << layer << ") = " << cube.indexFlatten(row, col, layer) << " pos: " << glm::to_string(cube.getCube(row, col, layer).getAxes().origin) << std::endl;
+
+        glm::mat4 T(1,2,3,4
+                    ,5,6,7,8
+                    ,9,10,11,12
+                    ,13,14,15,16);
+
+        std::cout <<glm::to_string(T * glm::vec4(1, 0, 0, 0)) << std::endl;
 
         cube.scale(SCALE / CUBE_DIM);
         /* Loop until the user closes the window */
@@ -140,7 +147,7 @@ int main(int argc, char* argv[])
             cube.update();
             //cube.localRotate(count, vec3(1, 1, 0));
             for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-                if (i == cube.indexFlatten(row, col, layer)) {
+                //if (i == cube.indexFlatten(row, col, layer)) {
                     VertexArray va;
 
                     vector<float>cubeVertices = cube.getVBCube(i);
@@ -191,7 +198,7 @@ int main(int argc, char* argv[])
                     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
                     va.Unbind();
                     ib.Unbind();
-                }
+                //}
 
 
 
