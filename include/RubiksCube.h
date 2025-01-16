@@ -24,7 +24,7 @@ class RubiksCube{
     protected:
 
         int rotatingAxis;
-        Cube cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
+        Cube* cubes[CUBE_DIM * CUBE_DIM * CUBE_DIM];
         Axes localAxes;
         deque<Rotation*> rotations;
 
@@ -68,17 +68,18 @@ class RubiksCube{
                         float half = CUBE_DIM / 2.0f - glm::dot(this->localAxes.forward, this->localAxes.forward) / 2.0f;
                         Axes axes(vec3((col - half), (row - half), (layer - half)));
                         axes.scale(.5f);
-                        cubes[indexFlatten(row, col, layer)].setAxes(axes);
+                        Cube *c = new Cube(axes);
+                        cubes[indexFlatten(row, col, layer)] = c;
                     }
                 }
             }
         };
-        int indexFlatten(int row, int columns, int layer){
+        int indexFlatten(int row, int columns, int layer) const{
             return layer * pow(CUBE_DIM, 2) + row * CUBE_DIM + columns;
         }
 
-        Cube getCube(int row, int col, int layer) {
-            return cubes[indexFlatten(row, col, layer)];
+        const Cube& getCube(int row, int col, int layer) const {
+            return *cubes[indexFlatten(row, col, layer)];
         }
 
         vector<int> getLayerInwards(int layer){
@@ -98,16 +99,16 @@ class RubiksCube{
 
         
         vector<float> getVBCube(int i) {
-            return cubes[i].getVB();
+            return cubes[i]->getVB();
         }
 
         vector<int> getIndicesCube(int i) {
-            return cubes[i].getIndices();
+            return cubes[i]->getIndices();
         }
 
         glm::mat4 getModelMat(int i) {
 
-            return this->localAxes.localToGlobal() * cubes[i].getAxes().localToGlobal();
+            return this->localAxes.localToGlobal() * cubes[i]->getAxes().localToGlobal();
         }
 
         // rotate around Axis origin  (origin remains the same)
@@ -150,7 +151,7 @@ class RubiksCube{
 
                     
                     for(int i: indices){
-                        this->cubes[i].originRotate(da, rotAxis);
+                        this->cubes[i]->originRotate(da, rotAxis);
                     }
                     rotations.push_back(rot);
                 }
