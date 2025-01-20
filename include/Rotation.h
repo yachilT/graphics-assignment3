@@ -1,3 +1,5 @@
+#pragma once
+
 #define FORWARD_TO_INWARDS 0
 #define LEFT_TO_RIGHT 1
 #define BOTTOM_TO_TOP 2

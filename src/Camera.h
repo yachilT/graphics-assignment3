@@ -2,7 +2,10 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define SCROLL_OFFSET 0.1f
-#define ROTATE_ANGLE_SCALE 0.001f
+#define ROTATE_ANGLE_SCALE 0.005f
+#define MOVE_SCALE 0.01f
+
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -51,7 +54,7 @@ class Camera
     public:
         Camera(int width, int height, RubiksCube* cube)
             : m_Width(width), m_Height(height), cube(cube) {
-                std::cout << "Camera at " << glm::to_string(m_Position) << std::endl;
+                //std::cout << "Camera at " << glm::to_string(m_Position) << std::endl;
             };
 
         // Update Projection matrix for Orthographic mode

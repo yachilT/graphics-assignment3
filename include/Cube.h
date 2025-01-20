@@ -116,16 +116,16 @@ class Cube{
         Cube(Axes axes) : axes(axes) {
             this->setDefaultColors();
 
-            for (int i = 0; i < 8; i++) {
-                std::cout << "vertex " << i << " " << glm::to_string(vertices[i]) << ": " << glm::to_string(color[i]) << std::endl;
-            }
+            // for (int i = 0; i < 8; i++) {
+            //     std::cout << "vertex " << i << " " << glm::to_string(vertices[i]) << ": " << glm::to_string(color[i]) << std::endl;
+            // }
         }
 
         Axes getAxes() {return axes; };
         void setAxes(const Axes &axes) { 
             this->axes = axes;
 
-            std::cout << "o: " << glm::to_string(axes.origin) << std::endl;
+            // std::cout << "o: " << glm::to_string(axes.origin) << std::endl;
         }
         
         void setColor(vec3 c){

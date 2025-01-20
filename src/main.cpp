@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
                     ,9,10,11,12
                     ,13,14,15,16);
 
-        std::cout <<glm::to_string(T * glm::vec4(1, 0, 0, 0)) << std::endl;
+        //std::cout <<glm::to_string(T * glm::vec4(1, 0, 0, 0)) << std::endl;
 
         cube.scale(SCALE / CUBE_DIM);
         /* Loop until the user closes the window */

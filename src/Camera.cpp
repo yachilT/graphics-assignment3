@@ -22,12 +22,13 @@ void Camera::SetPerspective(float near, float far, float FOV)
 
     glm::vec3 right = glm::cross(m_Up, m_Orientation);
     // std::cout << "right: " << glm::to_string(right) << std::endl;
-    // m_View = glm::mat4(right.x, right.y, right.z, 0.0f,
-    //                          m_Up.x, m_Up.y, m_Up.z, 0.0f,
-    //                          -m_Orientation.x, -m_Orientation.y, -m_Orientation.z, 0.0f,
-    //                          -m_Position.x, -m_Position.y, -m_Position.z, 1);
-    m_View = glm::mat4(1.0f);//glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
-    m_View[2][2]=-1.0f;
+    m_View = glm::mat4(right.x, m_Up.x, m_Orientation.x, 0,
+                             right.y, m_Up.y, m_Orientation.y, 0,
+                             -right.z, -m_Up.z, -m_Orientation.z, 0,
+                             -m_Position.x, -m_Position.y, -m_Position.z, 1);
+
+    // m_View = glm::mat4(1.0f);//glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
+    // m_View[2][2]=-1.0f;
     std::cout << glm::to_string(m_View) << std::endl;
 
 }
@@ -112,18 +113,20 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 std::cout << "U Pressed" << std::endl;
                 camera->getCube()->rotate_top_wall();
                 break;
-            // case GLFW_KEY_D:
-            //     std::cout << "D Pressed" << std::endl;
-            //     camera->getCube()-rotate_bottom_wall();
-            //     break;
-            // case GLFW_KEY_B:
-            //     std::cout << "B Pressed" << std::endl;
-            //     camera->getCube()-rotate_back_wall();
-            //     break;
-            // case GLFW_KEY_F:
-            //     std::cout << "F Pressed" << std::endl;
-            //     camera->getCube()-rotate_front_wall();
-            //     break;
+            case GLFW_KEY_D:
+                std::cout << "D Pressed" << std::endl;
+                camera->getCube()->rotate_bottom_wall();
+                break;
+            case GLFW_KEY_B:
+                std::cout << "B Pressed" << std::endl;
+                camera->getCube()->rotate_back_wall();
+                break;
+            case GLFW_KEY_F:
+                std::cout << "F Pressed" << std::endl;
+                camera->getCube()->rotate_front_wall();
+                break;
+            case GLFW_KEY_I:
+                break;
             default:
                 break;
         }
@@ -163,6 +166,8 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
+        camera->getCube()->moveX((camera->m_NewMouseX) * -MOVE_SCALE);
+        camera->getCube()->moveY((camera->m_NewMouseY) * MOVE_SCALE);
         std::cout << "MOUSE RIGHT Motion" << std::endl;
     }
 }
