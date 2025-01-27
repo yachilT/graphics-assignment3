@@ -69,24 +69,34 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
         switch (key)
         {
             case GLFW_KEY_DOWN:
-                std::cout << "UP Pressed" << std::endl;
+                std::cout << "DOWN Pressed" << std::endl;
                 // camera->tiltUp(0.01f);
-                camera->getCube()->localRotate(0.1f, vec3(-1,0,0));
+                camera->getCube()->moveCenterY(-1);
                 break;
             case GLFW_KEY_UP:
-                std::cout << "DOWN Pressed" << std::endl;
+                std::cout << "UP Pressed" << std::endl;
                 //camera->tiltUp(-0.01f);
-                camera->getCube()->localRotate(-0.1f, vec3(-1,0,0));
+                camera->getCube()->moveCenterY(1);
                 break;
             case GLFW_KEY_RIGHT:
-                std::cout << "LEFT Pressed" << std::endl;
+                std::cout << "RIGHT Pressed" << std::endl;
                 //camera->addPosition(vec3(-0.1f, 0, 0));
-                camera->getCube()->localRotate(-0.1f, vec3(0,1,0));
+                camera->getCube()->moveCenterX(1);
                 break;
             case GLFW_KEY_LEFT:
-                std::cout << "RIGHT Pressed" << std::endl;
+                std::cout << "LEFT Pressed" << std::endl;
                 //camera->addPosition(vec3(0.1f, 0, 0));
-                camera->getCube()->localRotate(0.1f, vec3(0,1,0));
+                camera->getCube()->moveCenterX(-1);
+                break;
+            case GLFW_KEY_I:
+                std::cout << "I Pressed" << std::endl;
+                //camera->addPosition(vec3(0.1f, 0, 0));
+                camera->getCube()->moveCenterZ(1);
+                break;
+            case GLFW_KEY_O:
+                std::cout << "O Pressed" << std::endl;
+                //camera->addPosition(vec3(0.1f, 0, 0));
+                camera->getCube()->moveCenterZ(-1);
                 break;
             case GLFW_KEY_R:
                 std::cout << "R Pressed" << std::endl;
@@ -125,8 +135,10 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 std::cout << "F Pressed" << std::endl;
                 camera->getCube()->rotate_front_wall();
                 break;
-            case GLFW_KEY_I:
-                break;
+            case GLFW_KEY_M:
+                std::cout << "M Pressed" << std::endl;
+                camera->getCube()->addMix(NUM_MIX);
+                KeyCallback(window, GLFW_KEY_F, scanCode, action, mods);
             default:
                 break;
         }

@@ -4,6 +4,7 @@
 #define SCROLL_OFFSET 0.1f
 #define ROTATE_ANGLE_SCALE 0.005f
 #define MOVE_SCALE 0.01f
+#define NUM_MIX 10
 
 
 

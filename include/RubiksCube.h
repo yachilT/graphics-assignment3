@@ -37,6 +37,7 @@ class RubiksCube{
         float currDegree;
 
         vector<ivec3> getIndices(int fixed, int dir);
+        int num_mix;
         
         
 
@@ -100,5 +101,13 @@ class RubiksCube{
 
         void moveX(float x_offset);
 
+        void moveCenterX(int x_offset);
+
+        void moveCenterY(int y_offset);
+
+        void moveCenterZ(int z_offset);
+
         void rotateIndices(vector<ivec3> indices, int axis, int sign);
+
+        void addMix(int m);
 };
