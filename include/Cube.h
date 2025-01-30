@@ -139,7 +139,7 @@ class Cube{
             this->color[5] = c;
         }
 
-        vector<float> getVB() {
+        vector<float> getVB(bool picking) {
             vector<float> vb;
             for (int i = 0; i < NUM_FACES; i++) {
                 vector<int> vexIndices = getFace(i+1);
@@ -150,9 +150,16 @@ class Cube{
                     vb.push_back(this->vertices[vexIndices[j]].z);
 
                     //vertex color
-                    vb.push_back(this->color[i].r);
-                    vb.push_back(this->color[i].g);
-                    vb.push_back(this->color[i].b);
+                    if (picking) {
+                        vb.push_back(0);
+                        vb.push_back(0);
+                        vb.push_back(0);
+                    }
+                    else {
+                        vb.push_back(this->color[i].r);
+                        vb.push_back(this->color[i].g);
+                        vb.push_back(this->color[i].b); 
+                    }
 
                     // vb.push_back(this->color[vexIndices[j]].r);
                     // vb.push_back(this->color[vexIndices[j]].g);

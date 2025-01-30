@@ -28,6 +28,58 @@ const float near = 0.1f;
 const float far = 100.0f;
 
 
+void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, bool picking) {
+    
+    vector<float>cubeVertices = cube.getVBCube(i, picking);
+    vector<int>trias = cube.getIndicesCube(i);
+
+    float vs[cubeVertices.size()];
+    std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
+    
+    unsigned int indices2[trias.size()];
+    
+    std::copy(trias.begin(), trias.end(), indices2);
+
+    VertexBuffer vb(vs, sizeof(vs));
+    IndexBuffer ib(indices2, sizeof(indices2));
+
+    VertexBufferLayout layout;
+    layout.Push<float>(3);  // positions
+    layout.Push<float>(3);  // colors
+    layout.Push<float>(2);  // texCoords
+
+    VertexArray va;
+    va.AddBuffer(vb, layout);
+
+    
+    glm::mat4 model = cube.getModelMat(i);
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 proj = camera.GetProjectionMatrix();
+    glm::mat4 mvp = proj * view * model;
+
+
+    /* Update shaders paramters and draw to the screen */
+    shader.Bind();
+    glm::vec4 uniColor;
+    if (picking) {
+        int shapeID = cube.getCubeId(i);
+        int r = ((shapeID+1) & 0x000000FF) >>  0;
+        int g = ((shapeID+1) & 0x0000FF00) >>  8;
+        int b = ((shapeID+1) & 0x00FF0000) >> 16;
+        uniColor = glm::vec4(r, g, b, 1.0f);
+    }
+    else {
+        uniColor = glm::vec4(1.0f);
+    }
+    shader.SetUniform4f("u_Color", uniColor);
+    shader.SetUniformMat4f("u_MVP", mvp);
+    shader.SetUniform1i("u_Texture", 0);
+    va.Bind();
+    ib.Bind();
+    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+    va.Unbind();
+    ib.Unbind();
+}
 
 
 
@@ -108,7 +160,6 @@ int main(int argc, char* argv[])
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
-            if(!camera.picked){
                 /* Set white background color */
                 GLCall(glClearColor(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 1.0f));
 
@@ -120,61 +171,24 @@ int main(int argc, char* argv[])
                 cube.update();
 
                 for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-
-                    vector<float>cubeVertices = cube.getVBCube(i);
-                    vector<int>trias = cube.getIndicesCube(i);
-
-                    float vs[cubeVertices.size()];
-                    std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
-                    
-                    unsigned int indices2[trias.size()];
-                    
-                    std::copy(trias.begin(), trias.end(), indices2);
-
-                    VertexBuffer vb(vs, sizeof(vs));
-                    IndexBuffer ib(indices2, sizeof(indices2));
-
-                    VertexBufferLayout layout;
-                    layout.Push<float>(3);  // positions
-                    layout.Push<float>(3);  // colors
-                    layout.Push<float>(2);  // texCoords
-
-                    VertexArray va;
-                    va.AddBuffer(vb, layout);
-
-                    
-                    glm::mat4 model = cube.getModelMat(i);
-                    glm::mat4 view = camera.GetViewMatrix();
-                    glm::mat4 proj = camera.GetProjectionMatrix();
-                    glm::mat4 mvp = proj * view * model;
-
-
-                    /* Update shaders paramters and draw to the screen */
-                    shader.Bind();
-                    shader.SetUniform4f("u_Color", color);
-                    shader.SetUniformMat4f("u_MVP", mvp);
-                    shader.SetUniform1i("u_Texture", 0);
-                    va.Bind();
-                    ib.Bind();
-                    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-                    va.Unbind();
-                    ib.Unbind();
+                    drawCube(shader, camera, cube, i, false);
                 }
 
 
                 /* Swap front and back buffers */
                 glfwSwapBuffers(window);
 
+                if (camera.picked) {
+                    for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
+                        drawCube(shader, camera, cube, i, true);
+                    }
+                }
                 /* Poll for and process events */
                 glfwPollEvents();
             }
-            else{
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                glGetIntegerv(GL_VIEWPORT, viewport);
-                glReadPixels(x, viewport[3]-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zz)
-            }
+             
         }
-    }
+    
 
     glfwTerminate();
     return 0;

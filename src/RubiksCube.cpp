@@ -87,8 +87,8 @@ vector<ivec3> RubiksCube::getLayerTopToButtom(int row){
 }
 
 
-vector<float> RubiksCube::getVBCube(int i) {
-    return cubes[i]->getVB();
+vector<float> RubiksCube::getVBCube(int i, bool picking) {
+    return cubes[i]->getVB(picking);
 }
 
 vector<int> RubiksCube::getIndicesCube(int i) {

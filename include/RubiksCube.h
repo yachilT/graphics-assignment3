@@ -63,11 +63,12 @@ class RubiksCube{
         vector<ivec3> getLayerTopToButtom(int row); 
 
         
-        vector<float> getVBCube(int i);
+        vector<float> getVBCube(int i, bool picking);
 
         vector<int> getIndicesCube(int i);
 
         glm::mat4 getModelMat(int i);
+
 
         // rotate around Axis origin  (origin remains the same)
         void localRotate(float angle, vec3 axis);
@@ -114,6 +115,10 @@ class RubiksCube{
         void rotateIndices(vector<ivec3> indices, int axis, int sign);
 
         void addMix(int m);
+
+        int getCubeId(int i) {
+            return this->cubes[i]->get_id();
+        }
 
         Cube* pickCube(ivec3 color_picked){
             int color_id = color_picked.r | color_picked.g << 8 | color_picked.b << 16;

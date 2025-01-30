@@ -173,8 +173,14 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     camera->m_OldMouseX = currMouseX;
     camera->m_OldMouseY = currMouseY;
 
-    if(camera->getCube()->picked){
-        //TODO! Implement the picking of the cube
+    if(camera->picked){
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        int viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+        glReadPixels(currMouseX, viewport[3]-currMouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zz);
+        // TODO: read color correctly, and translate correctly
+            
     }
     else{
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
