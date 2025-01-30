@@ -87,12 +87,18 @@ vector<ivec3> RubiksCube::getLayerTopToButtom(int row){
 }
 
 
-vector<float> RubiksCube::getVBCube(int i, bool picking) {
-    return cubes[i]->getVB(picking);
+vector<float> RubiksCube::getVBCube(int i) {
+
+    return cubes[i]->getVB();
 }
 
 vector<int> RubiksCube::getIndicesCube(int i) {
     return cubes[i]->getIndices();
+}
+
+vector<float> RubiksCube::getVBcubeColorPick(int i)
+{
+    return cubes[i]->getColorPickVB();
 }
 
 glm::mat4 RubiksCube::getModelMat(int i) {

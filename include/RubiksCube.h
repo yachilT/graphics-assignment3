@@ -43,10 +43,11 @@ class RubiksCube{
 
     public:
         RubiksCube(): RubiksCube(vec3(0)) {
-            for(int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){
-                this->cubes[i]->set_id (i);
+            for(int i = 1; i <= CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){
+                this->cubes[i]->set_id(i);
             }
         }
+        
         RubiksCube(vec3 pos);
 
         int indexFlatten(int row, int columns, int layer) const;
@@ -63,7 +64,8 @@ class RubiksCube{
         vector<ivec3> getLayerTopToButtom(int row); 
 
         
-        vector<float> getVBCube(int i, bool picking);
+        vector<float> getVBCube(int i);
+        vector<float> getVBcubeColorPick(int i);
 
         vector<int> getIndicesCube(int i);
 
@@ -120,8 +122,8 @@ class RubiksCube{
             return this->cubes[i]->get_id();
         }
 
-        Cube* pickCube(ivec3 color_picked){
-            int color_id = color_picked.r | color_picked.g << 8 | color_picked.b << 16;
+        Cube* pickCube(unsigned char * color_picked){
+            int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
             int shape_id = color_id - 1;
             Cube* picked_cube = nullptr;
             for(int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){

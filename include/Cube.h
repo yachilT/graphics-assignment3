@@ -139,7 +139,7 @@ class Cube{
             this->color[5] = c;
         }
 
-        vector<float> getVB(bool picking) {
+        vector<float> getVB() {
             vector<float> vb;
             for (int i = 0; i < NUM_FACES; i++) {
                 vector<int> vexIndices = getFace(i+1);
@@ -150,16 +150,10 @@ class Cube{
                     vb.push_back(this->vertices[vexIndices[j]].z);
 
                     //vertex color
-                    if (picking) {
-                        vb.push_back(0);
-                        vb.push_back(0);
-                        vb.push_back(0);
-                    }
-                    else {
-                        vb.push_back(this->color[i].r);
-                        vb.push_back(this->color[i].g);
-                        vb.push_back(this->color[i].b); 
-                    }
+                    vb.push_back(this->color[i].r);
+                    vb.push_back(this->color[i].g);
+                    vb.push_back(this->color[i].b); 
+                    
 
                     // vb.push_back(this->color[vexIndices[j]].r);
                     // vb.push_back(this->color[vexIndices[j]].g);
@@ -195,9 +189,6 @@ class Cube{
 
         vector<float> getColorPickVB() {
             vector<float> vb;
-            int r = ((this->id+1) & 0x000000FF) >>  0;
-            int g = ((this->id+1) & 0x0000FF00) >>  8;
-            int b = ((this->id+1) & 0x00FF0000) >> 16;
 
             for (int i = 0; i < NUM_FACES; i++) {
                 vector<int> vexIndices = getFace(i+1);
@@ -208,15 +199,9 @@ class Cube{
                     vb.push_back(this->vertices[vexIndices[j]].z);
 
                     //vertex color
-                    vb.push_back(r / 255.0f);
-                    vb.push_back(g / 255.0f);
-                    vb.push_back(b / 255.0f);
-
-                    // vb.push_back(this->color[vexIndices[j]].r);
-                    // vb.push_back(this->color[vexIndices[j]].g);
-                    // vb.push_back(this->color[vexIndices[j]].b);
-
-                    //std::cout << i << ": " << "(" << this->color[i].r << ", " << this->color[i].g << ", " << this->color[i].b << ")" << std::endl;
+                    vb.push_back(1.0f);
+                    vb.push_back(1.0f);
+                    vb.push_back(1.0f);
 
                     
                     // vertex texture coords

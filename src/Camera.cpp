@@ -172,42 +172,45 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     camera->m_NewMouseY = camera->m_OldMouseY - currMouseY;
     camera->m_OldMouseX = currMouseX;
     camera->m_OldMouseY = currMouseY;
-
+    Cube * selected = nullptr;
     if(camera->picked){
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         int viewport[4];
         glGetIntegerv(GL_VIEWPORT, viewport);
-        glReadPixels(currMouseX, viewport[3]-currMouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zz);
-        // TODO: read color correctly, and translate correctly
+        unsigned char color_picked[]{ 0, 0, 0, 0 };
+        glReadPixels(currMouseX, viewport[3] - currMouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color_picked);
+        int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
+        int shapeID = color_id - 1;
+        std::cout << "id: " << shapeID << std::endl;
+        selected = camera->getCube()->pickCube(color_picked);
             
     }
-    else{
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {   
         std::cout << "MOUSE LEFT Motion" << std::endl;
-        if (!camera->picked) {
+        if (!selected) {
             camera->getCube()->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
             camera->getCube()->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
         }
         else {
-            camera->selectedCube->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
-            camera->selectedCube->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+            selected->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
+            selected->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
         }
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
         vec3 translation((camera->m_NewMouseX) * -MOVE_SCALE, (camera->m_NewMouseY) * MOVE_SCALE, 0);
-        if (!camera->picked) {
+        if (!selected) {
             camera->getCube()->moveX((camera->m_NewMouseX) * -MOVE_SCALE);
             camera->getCube()->moveY((camera->m_NewMouseY) * MOVE_SCALE);
         }
         else {
-            camera->selectedCube->getAxes().translate(translation);
+            selected->getAxes().translate(translation);
         }
         std::cout << "MOUSE RIGHT Motion" << std::endl;
     }
-    }
+    
 }
 
 void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffsetY)
@@ -219,12 +222,7 @@ void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffse
     }
     if(scrollOffsetY > 0){
         std::cout << "SCROLL UP Motion" << std::endl;
-        if (!camera->picked) {
-            camera->getCube()->moveZ(-SCROLL_OFFSET);
-        }
-        else {
-            camera->selectedCube->getAxes().translate(vec3(0, 0, -scrollOffsetY));
-        }
+        camera->getCube()->moveZ(-SCROLL_OFFSET);
     }
     else if(scrollOffsetY < 0){
         std::cout << "SCROLL DOWN Motion" << std::endl;

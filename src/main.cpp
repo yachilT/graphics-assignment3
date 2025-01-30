@@ -30,7 +30,8 @@ const float far = 100.0f;
 
 void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, bool picking) {
     
-    vector<float>cubeVertices = cube.getVBCube(i, picking);
+    vector<float>cubeVertices = picking ? cube.getVBcubeColorPick(i) : cube.getVBCube(i);
+    
     vector<int>trias = cube.getIndicesCube(i);
 
     float vs[cubeVertices.size()];
@@ -71,9 +72,11 @@ void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, boo
     else {
         uniColor = glm::vec4(1.0f);
     }
+
     shader.SetUniform4f("u_Color", uniColor);
     shader.SetUniformMat4f("u_MVP", mvp);
-    shader.SetUniform1i("u_Texture", 0);
+
+    shader.SetUniform1i("u_Texture", picking ? 1 : 0);
     va.Bind();
     ib.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
@@ -135,8 +138,11 @@ int main(int argc, char* argv[])
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         /* Create texture */
-        Texture texture("res/textures/plane.png");
-        texture.Bind();
+        Texture texture1("res/textures/plane.png");
+        texture1.Bind();
+
+        Texture texture2("res/textures/white.png");
+        texture2.Bind();
         
 
 
@@ -160,34 +166,33 @@ int main(int argc, char* argv[])
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
-                /* Set white background color */
-                GLCall(glClearColor(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 1.0f));
+            /* Set white background color */
+            GLCall(glClearColor(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 1.0f));
+            /* Render here */
+            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+            glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
+            cube.update();
 
-                /* Render here */
-                GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
-
-                cube.update();
-
-                for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-                    drawCube(shader, camera, cube, i, false);
-                }
-
-
-                /* Swap front and back buffers */
-                glfwSwapBuffers(window);
-
-                if (camera.picked) {
-                    for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-                        drawCube(shader, camera, cube, i, true);
-                    }
-                }
-                /* Poll for and process events */
-                glfwPollEvents();
+            for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
+                drawCube(shader, camera, cube, i, false);
             }
-             
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window);
+
+            if (camera.picked) {
+                GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+                for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
+                    drawCube(shader, camera, cube, i, true);
+                }
+            }
+            
+            /* Poll for and process events */
+            glfwPollEvents();
         }
+            
+    }
     
 
     glfwTerminate();
