@@ -32,6 +32,7 @@ class Cube{
         //                              ivec3(1, 0, 4), ivec3(4, 5 ,1)}; //bottom
         vec3 color[NUM_FACES + 2]; // remove
         Axes axes;
+        int id;
 
 
         // returns indices of vertices according to position in vertices array of cube
@@ -185,6 +186,57 @@ class Cube{
             return vb;
         };
 
+        vector<float> getColorPickVB() {
+            vector<float> vb;
+            int r = ((this->id+1) & 0x000000FF) >>  0;
+            int g = ((this->id+1) & 0x0000FF00) >>  8;
+            int b = ((this->id+1) & 0x00FF0000) >> 16;
+
+            for (int i = 0; i < NUM_FACES; i++) {
+                vector<int> vexIndices = getFace(i+1);
+                for (int j = 0; j < vexIndices.size(); j++) {
+                    //vertex pos
+                    vb.push_back(this->vertices[vexIndices[j]].x);
+                    vb.push_back(this->vertices[vexIndices[j]].y);
+                    vb.push_back(this->vertices[vexIndices[j]].z);
+
+                    //vertex color
+                    vb.push_back(r / 255.0f);
+                    vb.push_back(g / 255.0f);
+                    vb.push_back(b / 255.0f);
+
+                    // vb.push_back(this->color[vexIndices[j]].r);
+                    // vb.push_back(this->color[vexIndices[j]].g);
+                    // vb.push_back(this->color[vexIndices[j]].b);
+
+                    //std::cout << i << ": " << "(" << this->color[i].r << ", " << this->color[i].g << ", " << this->color[i].b << ")" << std::endl;
+
+                    
+                    // vertex texture coords
+                    switch(j) {
+                        case 0:
+                            vb.push_back(0.0f);
+                            vb.push_back(0.0f);
+                            break;
+                        case 1:
+                            vb.push_back(1.0f);
+                            vb.push_back(0.0f);
+                            break;
+                        case 2:
+                            vb.push_back(1.0f);
+                            vb.push_back(1.0f);
+                            break;
+                        case 3:
+                            vb.push_back(0.0f);
+                            vb.push_back(1.0f); 
+                            break;                                                                                 
+                    }
+                }
+            }
+            
+            return vb;
+        };
+
         vector<int> getIndices() {
             vector<int> indices;
             for(int i = 0; i < NUM_FACES; i++){
@@ -219,5 +271,13 @@ class Cube{
         //rotate around (0,0,0) (origin moves too)
         void originRotate(float angle, vec3 axis) {
             this->axes.originRotate(angle, axis);
+        }
+
+        void set_id(int id) {
+            this->id = id;
+        }
+
+        int get_id() {
+            return this->id;
         }
 };

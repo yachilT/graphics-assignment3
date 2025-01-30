@@ -173,7 +173,11 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     camera->m_OldMouseX = currMouseX;
     camera->m_OldMouseY = currMouseY;
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    if(camera->getCube()->picked){
+        //TODO! Implement the picking of the cube
+    }
+    else{
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {   
         std::cout << "MOUSE LEFT Motion" << std::endl;
         if (!camera->picked) {
@@ -196,6 +200,7 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
             camera->selectedCube->getAxes().translate(translation);
         }
         std::cout << "MOUSE RIGHT Motion" << std::endl;
+    }
     }
 }
 
