@@ -139,6 +139,9 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 std::cout << "M Pressed" << std::endl;
                 camera->getCube()->addMix(NUM_MIX);
                 KeyCallback(window, GLFW_KEY_F, scanCode, action, mods);
+            case GLFW_KEY_P:
+                std::cout << "P Pressed" << std::endl;
+                camera->picked = true;
             default:
                 break;
         }
@@ -173,13 +176,25 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {   
         std::cout << "MOUSE LEFT Motion" << std::endl;
-        camera->getCube()->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
-        camera->getCube()->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+        if (!camera->picked) {
+            camera->getCube()->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
+            camera->getCube()->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+        }
+        else {
+            camera->selectedCube->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
+            camera->selectedCube->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+        }
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
-        camera->getCube()->moveX((camera->m_NewMouseX) * -MOVE_SCALE);
-        camera->getCube()->moveY((camera->m_NewMouseY) * MOVE_SCALE);
+        vec3 translation((camera->m_NewMouseX) * -MOVE_SCALE, (camera->m_NewMouseY) * MOVE_SCALE, 0);
+        if (!camera->picked) {
+            camera->getCube()->moveX((camera->m_NewMouseX) * -MOVE_SCALE);
+            camera->getCube()->moveY((camera->m_NewMouseY) * MOVE_SCALE);
+        }
+        else {
+            camera->selectedCube->getAxes().translate(translation);
+        }
         std::cout << "MOUSE RIGHT Motion" << std::endl;
     }
 }
@@ -193,7 +208,12 @@ void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffse
     }
     if(scrollOffsetY > 0){
         std::cout << "SCROLL UP Motion" << std::endl;
-        camera->getCube()->moveZ(-SCROLL_OFFSET);
+        if (!camera->picked) {
+            camera->getCube()->moveZ(-SCROLL_OFFSET);
+        }
+        else {
+            camera->selectedCube->getAxes().translate(vec3(0, 0, -scrollOffsetY));
+        }
     }
     else if(scrollOffsetY < 0){
         std::cout << "SCROLL DOWN Motion" << std::endl;

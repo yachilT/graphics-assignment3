@@ -122,6 +122,7 @@ class Cube{
         }
 
         Axes getAxes() {return axes; };
+        
         void setAxes(const Axes &axes) { 
             this->axes = axes;
 

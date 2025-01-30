@@ -27,21 +27,9 @@ const unsigned int height = 800;
 const float near = 0.1f;
 const float far = 100.0f;
 
-/* Shape vertices coordinates with positions, colors, and corrected texCoords */
-float vertices[] = {
-    // positions            // colors            // texCoords
-    -0.5f, -0.5f,  0.5f,    1.0f, 0.0f, 0.0f,    0.0f, 0.0f,  // Bottom-left
-     0.5f, -0.5f,  0.5f,    0.0f, 1.0f, 0.0f,    1.0f, 0.0f,  // Bottom-right
-     0.5f,  0.5f,  0.5f,    0.0f, 0.0f, 1.0f,    1.0f, 1.0f,  // Top-right
-    -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 0.0f,    0.0f, 1.0f,  // Top-left
-};
 
 
-/* Indices for vertices order */
-unsigned int indices[] = {
-    0, 1, 2, 
-    2, 3, 0
-};
+
 
 int main(int argc, char* argv[])
 {
@@ -107,37 +95,21 @@ int main(int argc, char* argv[])
     	GLCall(glEnable(GL_DEPTH_TEST));
 
         RubiksCube cube = RubiksCube(vec3(0, 0, 5));
-        //Cube cube(vec3(0, 0, 5));
+        cube.scale(SCALE / CUBE_DIM);
+        float count = 0.1f;
+        cube.localRotate(count, vec3(1, 1, 0));
 
 
         /* Create camera */
         Camera camera(width, height, &cube);
         camera.SetPerspective(near, far, M_PI / 4);
-        //camera.SetOrthographic(near, far);
         camera.EnableInputs(window);
-        float count = 0.1f;
-        cube.localRotate(count, vec3(1, 1, 0));
 
-        int row = 0;
-        int col = 0;
-        int layer = 0;
-
-
-        //std::cout << "cube at: (" << row << ", " << col << ", " << layer << ") = " << cube.indexFlatten(row, col, layer) << " pos: " << glm::to_string(cube.getCube(row, col, layer).getAxes().origin) << std::endl;
-
-        glm::mat4 T(1,2,3,4
-                    ,5,6,7,8
-                    ,9,10,11,12
-                    ,13,14,15,16);
-
-        //std::cout <<glm::to_string(T * glm::vec4(1, 0, 0, 0)) << std::endl;
-
-        cube.scale(SCALE / CUBE_DIM);
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Set white background color */
-            GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+            GLCall(glClearColor(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 1.0f));
 
 
             /* Render here */
@@ -145,63 +117,47 @@ int main(int argc, char* argv[])
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
             cube.update();
-            //cube.localRotate(count, vec3(1, 1, 0));
+
             for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
-                //if (i == cube.indexFlatten(row, col, layer)) {
-                    VertexArray va;
 
-                    vector<float>cubeVertices = cube.getVBCube(i);
-                    vector<int>trias = cube.getIndicesCube(i);
+                vector<float>cubeVertices = cube.getVBCube(i);
+                vector<int>trias = cube.getIndicesCube(i);
 
-                    float vs[cubeVertices.size()];
-                    std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
+                float vs[cubeVertices.size()];
+                std::copy(cubeVertices.begin(), cubeVertices.end(), vs);
+                
+                unsigned int indices2[trias.size()];
+                
+                std::copy(trias.begin(), trias.end(), indices2);
 
-                    // for (int i = 0; i < 24; i++) {
-                    //     std::cout << i <<  ": (" << vs[8 * i] << ", " << vs[8 * i + 1] << ", " << vs[8 * i + 2] << ") (" << vs[8 * i + 3] << ", " << vs[8 * i + 4] << ", " << vs[8 * i + 5] << ") (" << vs[8 * i + 6] << ", " << vs[8 * i + 7] << ")" << std::endl;
-                    // }
+                VertexBuffer vb(vs, sizeof(vs));
+                IndexBuffer ib(indices2, sizeof(indices2));
 
+                VertexBufferLayout layout;
+                layout.Push<float>(3);  // positions
+                layout.Push<float>(3);  // colors
+                layout.Push<float>(2);  // texCoords
 
+                VertexArray va;
+                va.AddBuffer(vb, layout);
 
-                    //std::cout << "-----------------------------------------" << std::endl ;
-                    
-                    unsigned int indices2[trias.size()];
-                    
-                    std::copy(trias.begin(), trias.end(), indices2);
-
-                    // for (int i = 0; i < 6; i++) {
-                    //     std::cout << trias[6 * i] << " -> " << trias[6*i + 1] << " -> " << trias[6*i + 2] << " | " << trias[6 * i + 3] << " -> " << trias[6*i + 4] << " -> " << trias[6*i + 5] << std::endl;
-                    // }
-                    VertexBuffer vb(vs, sizeof(vs));
-                    IndexBuffer ib(indices2, sizeof(indices2));
-
-                    VertexBufferLayout layout;
-                    layout.Push<float>(3);  // positions
-                    layout.Push<float>(3);  // colors
-                    layout.Push<float>(2);  // texCoords
-                    va.AddBuffer(vb, layout);
-
-                    
-                    glm::mat4 model = cube.getModelMat(i);
-                    //std::cout << glm::to_string(model) << std::endl;
-                    glm::mat4 view = camera.GetViewMatrix();
-                    glm::mat4 proj = camera.GetProjectionMatrix();
-                    glm::mat4 mvp = proj * view * model;
+                
+                glm::mat4 model = cube.getModelMat(i);
+                glm::mat4 view = camera.GetViewMatrix();
+                glm::mat4 proj = camera.GetProjectionMatrix();
+                glm::mat4 mvp = proj * view * model;
 
 
-                    /* Update shaders paramters and draw to the screen */
-                    shader.Bind();
-                    shader.SetUniform4f("u_Color", color);
-                    shader.SetUniformMat4f("u_MVP", mvp);
-                    shader.SetUniform1i("u_Texture", 0);
-                    va.Bind();
-                    ib.Bind();
-                    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-                    va.Unbind();
-                    ib.Unbind();
-                //}
-
-
-
+                /* Update shaders paramters and draw to the screen */
+                shader.Bind();
+                shader.SetUniform4f("u_Color", color);
+                shader.SetUniformMat4f("u_MVP", mvp);
+                shader.SetUniform1i("u_Texture", 0);
+                va.Bind();
+                ib.Bind();
+                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+                va.Unbind();
+                ib.Unbind();
             }
 
 

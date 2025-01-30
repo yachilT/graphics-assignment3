@@ -48,4 +48,8 @@ class Axes{
             this->up = this->up * s;
             this->right = this->right * s;
         }
+
+        void translate(vec3 trans) {
+            this->origin += trans;
+        }
 };

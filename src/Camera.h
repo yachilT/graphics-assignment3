@@ -53,6 +53,8 @@ class Camera
         double m_NewMouseX = 0.0;
         double m_NewMouseY = 0.0;
     public:
+        bool picked = false;
+        Cube* selectedCube = nullptr;
         Camera(int width, int height, RubiksCube* cube)
             : m_Width(width), m_Height(height), cube(cube) {
                 //std::cout << "Camera at " << glm::to_string(m_Position) << std::endl;
@@ -72,4 +74,5 @@ class Camera
         inline glm::mat4 GetViewMatrix() const { return m_View; }
         inline glm::mat4 GetProjectionMatrix() const { return m_Projection; }
         inline RubiksCube* getCube() const { return cube;}
+        void enablePickMod();
 };
