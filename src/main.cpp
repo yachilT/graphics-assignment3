@@ -27,7 +27,6 @@ const unsigned int height = 800;
 const float near = 0.1f;
 const float far = 100.0f;
 
-
 void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, bool picking) {
     
     vector<float>cubeVertices = picking ? cube.getVBcubeColorPick(i) : cube.getVBCube(i);
@@ -60,23 +59,21 @@ void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, boo
 
 
     /* Update shaders paramters and draw to the screen */
-    shader.Bind();
     glm::vec4 uniColor;
     if (picking) {
         int shapeID = cube.getCubeId(i);
         int r = ((shapeID+1) & 0x000000FF) >>  0;
         int g = ((shapeID+1) & 0x0000FF00) >>  8;
         int b = ((shapeID+1) & 0x00FF0000) >> 16;
-        uniColor = glm::vec4(r, g, b, 1.0f);
+        uniColor = glm::vec4(r/ 255.0, g / 255.0, b / 255.0, 1.0f);
     }
     else {
         uniColor = glm::vec4(1.0f);
     }
-
+    shader.Bind();
     shader.SetUniform4f("u_Color", uniColor);
     shader.SetUniformMat4f("u_MVP", mvp);
-
-    shader.SetUniform1i("u_Texture", picking ? 1 : 0);
+    shader.SetUniform1i("u_Texture", 1);
     va.Bind();
     ib.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
@@ -137,12 +134,12 @@ int main(int argc, char* argv[])
         /* Blend to fix images with transperancy */
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
         /* Create texture */
         Texture texture1("res/textures/plane.png");
-        texture1.Bind();
+        texture1.Bind(1);
 
-        Texture texture2("res/textures/white.png");
-        texture2.Bind();
+
         
 
 
@@ -167,7 +164,8 @@ int main(int argc, char* argv[])
         while (!glfwWindowShouldClose(window))
         {
             /* Set white background color */
-            GLCall(glClearColor(25 / 255.0f, 25 / 255.0f, 25 / 255.0f, 1.0f));
+            GLCall(glClearColor(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f));
+
             /* Render here */
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);

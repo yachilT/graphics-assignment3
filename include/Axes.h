@@ -28,6 +28,14 @@ class Axes{
         };
 
 
+        glm::mat4 globalToLocal() {
+            return glm::mat4 (right.x, up.x, forward.x, 0, 
+                              right.y, up.y, forward.y, 0,
+                              right.z, up.z, forward.z, 0,
+                              0, 0, 0, 1);
+        }
+
+
         // rotate around Axis origin  (origin remains the same)
         void localRotate(float angle, vec3 axis) {
             glm::mat4 id = glm::mat4(1.0f);

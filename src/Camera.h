@@ -36,8 +36,7 @@ class Camera
         glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
         // Projection matrix parameters
-        float m_Near = 0.1f; 
-        float m_Far = 100.0f;
+
         int m_Width;
         int m_Height;
 
@@ -47,6 +46,8 @@ class Camera
         float m_Bottom = -1.0f; 
         float m_Top = 1.0f;
     public:
+        float m_Near = 0.1f; 
+        float m_Far = 100.0f;
         // Prevent the camera from jumping around when first clicking left click
         double m_OldMouseX = 0.0;
         double m_OldMouseY = 0.0;

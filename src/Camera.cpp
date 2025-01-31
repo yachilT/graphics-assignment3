@@ -139,9 +139,11 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 std::cout << "M Pressed" << std::endl;
                 camera->getCube()->addMix(NUM_MIX);
                 KeyCallback(window, GLFW_KEY_F, scanCode, action, mods);
+                break;
             case GLFW_KEY_P:
                 std::cout << "P Pressed" << std::endl;
                 camera->picked = true;
+                break;
             default:
                 break;
         }
@@ -173,15 +175,17 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     camera->m_OldMouseX = currMouseX;
     camera->m_OldMouseY = currMouseY;
     Cube * selected = nullptr;
+
+    int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
     if(camera->picked){
 
-        int viewport[4];
-        glGetIntegerv(GL_VIEWPORT, viewport);
+
         unsigned char color_picked[]{ 0, 0, 0, 0 };
         glReadPixels(currMouseX, viewport[3] - currMouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color_picked);
         int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
         int shapeID = color_id - 1;
-        std::cout << "id: " << shapeID << std::endl;
+        std::cout << "color: " << (int)color_picked[0] << ", " << (int)color_picked[1] << ", " << (int)color_picked[2] << std::endl;
         selected = camera->getCube()->pickCube(color_picked);
             
     }
@@ -200,13 +204,21 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
-        vec3 translation((camera->m_NewMouseX) * -MOVE_SCALE, (camera->m_NewMouseY) * MOVE_SCALE, 0);
+        float depth;
+        glReadPixels(currMouseX, viewport[3] - currMouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+        float z = camera->m_Far + depth * (camera->m_Near - camera->m_Far);
+        float x = (camera->m_NewMouseX);
+        float y = (camera->m_NewMouseY);
+
+
+        vec3 translation(-x * camera->m_Far * camera->m_Near * 2 * glm::tan(M_PI / 4.0f) / (viewport[2] * z),
+         y * camera->m_Far * camera->m_Near * 2 * glm::tan(M_PI / 4.0f) / (viewport[3] * z), 0);
         if (!selected) {
-            camera->getCube()->moveX((camera->m_NewMouseX) * -MOVE_SCALE);
-            camera->getCube()->moveY((camera->m_NewMouseY) * MOVE_SCALE);
+            camera->getCube()->moveX(translation.x);
+            camera->getCube()->moveY(translation.y);
         }
         else {
-            selected->getAxes().translate(translation);
+            selected->getAxes().translate(camera->getCube()->worldToLocal(translation));
         }
         std::cout << "MOUSE RIGHT Motion" << std::endl;
     }

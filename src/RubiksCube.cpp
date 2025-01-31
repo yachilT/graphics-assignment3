@@ -44,6 +44,7 @@ RubiksCube::RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
                 //std::cout << glm::to_string(glm::ivec3(row, col, layer)) << " == " << glm::to_string(axes.origin) << std::endl;
                 Cube *c = new Cube(axes);
                 cubes[indexFlatten(row, col, layer)] = c;
+                c->set_id(indexFlatten(row, col, layer) + 1);
             }
         }
     }

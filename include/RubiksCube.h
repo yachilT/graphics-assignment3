@@ -42,12 +42,8 @@ class RubiksCube{
         
 
     public:
-        RubiksCube(): RubiksCube(vec3(0)) {
-            for(int i = 1; i <= CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){
-                this->cubes[i]->set_id(i);
-            }
-        }
-        
+        RubiksCube(): RubiksCube(vec3(0)) {}
+
         RubiksCube(vec3 pos);
 
         int indexFlatten(int row, int columns, int layer) const;
@@ -134,5 +130,10 @@ class RubiksCube{
             }
 
             return picked_cube;
+        }
+
+        vec3 worldToLocal(vec3 dir) {
+            glm::vec4 res = this->localAxes.globalToLocal() * glm::vec4(dir, 0.1f);
+            return vec3(res.x, res.y, res.z);
         }
 };
