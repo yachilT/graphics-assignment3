@@ -37,31 +37,30 @@ class RubiksCube{
         // total angle of rotation for one press (90 or 45 degrees)
         float currDegree;
 
-        vector<ivec3> getIndices(int fixed, int dir);
-
         //number of rotation left to do after mix
         int num_mix; 
+
+        vector<ivec3> getIndices(int fixed, int dir);
+
+
+        int indexFlatten(int row, int columns, int layer) const;
+        int indexFlatten(ivec3 coords) const;
+
+        vector<ivec3> getLayerInwards(int layer);
+        vector<ivec3> getLayerLeftToRight(int column);
+        vector<ivec3> getLayerTopToButtom(int row); 
         
-        
+        void rotate_wall(int dir, int layer);
+        void rotateIndices(vector<ivec3> indices, int axis, int sign);
 
     public:
         RubiksCube(): RubiksCube(vec3(0)) {}
 
         RubiksCube(vec3 pos);
 
-        int indexFlatten(int row, int columns, int layer) const;
-        int indexFlatten(ivec3 coords) const;
-        
+        void update();
 
         const Cube& getCube(int row, int col, int layer) const;
-        
-
-        vector<ivec3> getLayerInwards(int layer);
-
-        vector<ivec3> getLayerLeftToRight(int column);
-
-        vector<ivec3> getLayerTopToButtom(int row); 
-
         
         vector<float> getVBCube(int i);
         vector<float> getVBcubeColorPick(int i);
@@ -77,11 +76,9 @@ class RubiksCube{
         //rotate around (0,0,0) (origin moves too)
         void originRotate(float angle, vec3 axis);
 
-        void scale(float s);
+        void translate(vec3 translation);
 
-        void update();
-        
-        void rotate_wall(int dir, int layer);
+        void scale(float s);
 
         void rotate_right_wall();
 
@@ -101,21 +98,12 @@ class RubiksCube{
 
         void divDegree();
 
-        void moveZ(float z_offset);
-
-        void moveY(float y_offset);
-
-        void moveX(float x_offset);
-
-        void translate(vec3 translation);
-
         void moveCenterX(int x_offset);
 
         void moveCenterY(int y_offset);
 
         void moveCenterZ(int z_offset);
 
-        void rotateIndices(vector<ivec3> indices, int axis, int sign);
 
         void addMix(int m);
 
@@ -123,22 +111,7 @@ class RubiksCube{
             return this->cubes[i]->get_id();
         }
 
-        Cube* pickCube(unsigned char * color_picked){
-            int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
-            int shape_id = color_id - 1;
-            Cube* picked_cube = nullptr;
-            for(int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){
-                if(cubes[i]->get_id() == shape_id){
-                    picked_cube = cubes[i];
-                    break;
-                }
-            }
-
-            return picked_cube;
-        }
-
-        vec3 worldToLocal(vec3 dir) {
-            glm::vec4 res = this->localAxes.globalToLocalDir() * glm::vec4(dir, 0.1f);
-            return vec3(res.x, res.y, res.z);
-        }
+        Cube* pickCube(unsigned char * color_picked);
+    
+        vec3 worldToLocalDir(vec3 dir);
 };

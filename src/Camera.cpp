@@ -181,20 +181,22 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
         glReadPixels(currMouseX, viewport[3] - currMouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color_picked);
         int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
         int shapeID = color_id - 1;
-        // std::cout << "color: " << (int)color_picked[0] << ", " << (int)color_picked[1] << ", " << (int)color_picked[2] << std::endl;
         selected = camera->getCube()->pickCube(color_picked);
     }
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {   
         std::cout << "MOUSE LEFT Motion" << std::endl;
+        glm::vec3 rotAxis(camera->m_NewMouseY, camera->m_NewMouseX, 0); 
+
+        float angle = glm::length(rotAxis);
+        rotAxis = rotAxis / angle; // rotation
+        
         if (!selected) {
-            camera->getCube()->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
-            camera->getCube()->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+            camera->getCube()->localRotate(angle * ROTATE_ANGLE_SCALE, rotAxis);
         }
         else {
-            selected->localRotate((camera->m_NewMouseX) * ROTATE_ANGLE_SCALE, vec3(0.0f, 1.0f, 0.0f));
-            selected->localRotate((camera->m_NewMouseY) * ROTATE_ANGLE_SCALE, vec3(1.0f, 0.0f, 0.0f));
+            selected->localRotate(angle * 2 * ROTATE_ANGLE_SCALE, camera->getCube()->worldToLocalDir(rotAxis));
         }
     }
     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -212,7 +214,7 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
             camera->getCube()->translate(translation);
         }
         else {
-            selected->getAxes().translate(camera->getCube()->worldToLocal(translation));
+            selected->getAxes().translate(camera->getCube()->worldToLocalDir(translation));
         }
         std::cout << "MOUSE RIGHT Motion" << std::endl;
     }

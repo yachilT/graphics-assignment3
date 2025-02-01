@@ -57,9 +57,7 @@ class Camera
         bool picked = false;
         Cube* selectedCube = nullptr;
         Camera(int width, int height, RubiksCube* cube)
-            : m_Width(width), m_Height(height), cube(cube) {
-                //std::cout << "Camera at " << glm::to_string(m_Position) << std::endl;
-            };
+            : m_Width(width), m_Height(height), cube(cube) {};
 
         // Update Projection matrix for Orthographic mode
         void SetOrthographic(float near, float far);

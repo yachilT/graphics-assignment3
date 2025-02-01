@@ -116,10 +116,6 @@ void RubiksCube::originRotate(float angle, vec3 axis) {
     this->localAxes.originRotate(angle, axis);
 }
 
-void RubiksCube::scale(float s) {
-    this->localAxes.scale(s);
-}
-
 void RubiksCube::update() {
     for (int i = rotations.size(); i > 0; i--) {
         Rotation* rot = rotations.at(0);
@@ -127,8 +123,6 @@ void RubiksCube::update() {
 
         if (rot->shouldTerminate()) {
 
-            std::cout << "absolute angle: " << glm::abs(absolute_rotations[rot->getDir()][rot->getDirID()]) << std::endl;
-            //std::cout << num_walls_unaligned[0] << ", " << num_walls_unaligned[1] << ", " << num_walls_unaligned[2] << std::endl;
             if (glm::abs(absolute_rotations[rot->getDir()][rot->getDirID()]) <= ERROR)
                 this->num_walls_unaligned[rot->getDir()] -= 1;
 
@@ -197,13 +191,10 @@ void RubiksCube::rotateIndices(vector<ivec3> indices, int axis, int sign) {
     glm::imat4x4 translate(castToInt(glm::translate(glm::mat4(1), -vec3(CUBE_DIM % 2 == 0 ? (CUBE_DIM-1) : (CUBE_DIM/2)))));
     glm::imat4x4 translateBack(castToInt(glm::translate(glm::mat4(1), vec3(CUBE_DIM % 2 == 0 ? (CUBE_DIM-1) : (CUBE_DIM/2)))));
 
-    //std::cout << "axis: " << axis << std::endl;
     glm::vec3 axisVec = axis == LEFT_TO_RIGHT ? vec3(1, 0, 0) :
     axis == BOTTOM_TO_TOP ? vec3(0, 1, 0) : vec3(0, 0, 1);
 
-    //std::cout << "axisVec: " << glm::to_string(axisVec) << std::endl;
     glm::imat4x4 rotate(castToInt(glm::rotate(glm::mat4(1.0f), M_PI / 2 * sign, axisVec)));
-    //std::cout << glm::to_string(translate) << std::endl;
     glm::imat4x4 transform = swapXY * translateBack * rotate * translate * scale * swapXY;
 
 
@@ -215,24 +206,18 @@ void RubiksCube::rotateIndices(vector<ivec3> indices, int axis, int sign) {
     int newIndex = 0;
     for (int i = 0; i < indices.size(); i++) {
         glm::ivec4 rotated = (transform * glm::ivec4(indices[i], 1)) / scaleFactor;
-        //std::cout << glm::to_string(translate * scale * swapXY * glm::ivec4(indices[i], 1)) << " == " << glm::to_string(wall_cubes[i]->getAxes().origin) << std::endl;
         newIndex = indexFlatten(glm::ivec3(rotated.x, rotated.y, rotated.z));
         cubes[glm::abs(newIndex)] = wall_cubes[i];
-        //std::cout << "New Index:" << indexFlatten(glm::ivec3(rotated.x, rotated.y, rotated.z)) << std::endl;
-        //std::cout << "Cube Index:" << cubes[indexFlatten(glm::ivec3(rotated.x, rotated.y, rotated.z))] << std::endl;
     }
 
 
 }
 
 void RubiksCube::rotate_wall(int dir, int layer) {
-    std::cout << "rotating..." << std::endl;
-    std::cout << "num walls unaligned[" << num_walls_unaligned[0] << ", " << num_walls_unaligned[1] << ", " << num_walls_unaligned[2] << "]" << std::endl;
     if (this->num_walls_unaligned[(dir + 3 - 1) % 3] > 0
      || this->num_walls_unaligned[(dir + 3 + 1) % 3] > 0) {
         std::cout << (dir - 1) % 3 << std::endl;
         std::cout << (dir + 1) % 3 << std::endl;
-        std::cout << " failed to start rotation" << std::endl;
         return;
      }
     
@@ -240,15 +225,12 @@ void RubiksCube::rotate_wall(int dir, int layer) {
         this->num_walls_unaligned[dir] += 1;
 
     Rotation * r = new Rotation(dir, layer);
-    std::cout << "starting rotation" << std::endl;
     r->startRotation(currDegree, ANGLE_SPEED);
     rotations.push_back(r);
 }
 
 void RubiksCube::rotate_right_wall(){
-    //std::cout << "rotation offset: [" << rotation_offset[0] << ", " << rotation_offset[1] << ", " << rotation_offset[2] << std::endl;
     int wall = CUBE_DIM - 1 + this->rotation_offset[LEFT_TO_RIGHT];
-    //std::cout << "wall" << wall << std::endl;
     if (wall >= 0 && wall < CUBE_DIM)
         rotate_wall(LEFT_TO_RIGHT, wall);
 }
@@ -296,18 +278,13 @@ void RubiksCube::divDegree(){
     if(glm::abs(this->currDegree) > M_PI/4.0f) this->currDegree = 0.5f * this->currDegree;
 }
 
-void RubiksCube::moveZ(float z_offset){
-    this->localAxes.origin.z += z_offset;
-}
-void RubiksCube::moveY(float y_offset){
-    this->localAxes.origin.y += y_offset;
-}
-void RubiksCube::moveX(float x_offset){
-    this->localAxes.origin.x += x_offset;
-}
-
 void RubiksCube::translate(vec3 translation) {
     this->localAxes.translate(translation);
+}
+
+void RubiksCube::scale(float s)
+{
+    this->localAxes.scale(s);
 }
 
 void RubiksCube::moveCenterX(int x_offset){
@@ -331,3 +308,21 @@ void RubiksCube::moveCenterZ(int z_offset){
 void RubiksCube::addMix(int m){
     this->num_mix += m;
 }
+
+Cube* RubiksCube::pickCube(unsigned char * color_picked) {
+    int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
+    int shape_id = color_id - 1;
+    Cube* picked_cube = nullptr;
+    for(int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++){
+        if(cubes[i]->get_id() == shape_id){
+            picked_cube = cubes[i];
+            break;
+        }
+    }
+    return picked_cube;
+}
+
+vec3 RubiksCube::worldToLocalDir(vec3 dir) {
+    glm::vec4 res = this->localAxes.globalToLocalDir() * glm::vec4(dir, 0.1f);
+        return vec3(res.x, res.y, res.z);
+    }

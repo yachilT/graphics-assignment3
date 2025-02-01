@@ -24,13 +24,7 @@ class Cube{
     protected:
         vec3 vertices[8] = { vec3(-1,-1,-1), vec3(1,-1,-1), vec3(1,1,-1), vec3(-1,1,-1),
                                       vec3(1,-1,1), vec3(-1,-1,1), vec3(-1,1,1), vec3(1,1,1) };
-        // ivec3 indices[12] = {ivec3(0,1,2), ivec3(2,3,0), //front
-        //                              ivec3(1, 5, 6), ivec3(6, 2 ,1), //right
-        //                              ivec3(5, 4, 7), ivec3(7, 6 ,5), //back
-        //                              ivec3(4, 0, 3), ivec3(3, 7 ,4), //left
-        //                              ivec3(3, 2, 6), ivec3(6, 7 ,3), //top
-        //                              ivec3(1, 0, 4), ivec3(4, 5 ,1)}; //bottom
-        vec3 color[NUM_FACES + 2]; // remove
+        vec3 color[NUM_FACES + 2];
         Axes axes;
         int id;
 
@@ -116,19 +110,11 @@ class Cube{
 
         Cube(Axes axes) : axes(axes) {
             this->setDefaultColors();
-
-            // for (int i = 0; i < 8; i++) {
-            //     std::cout << "vertex " << i << " " << glm::to_string(vertices[i]) << ": " << glm::to_string(color[i]) << std::endl;
-            // }
         }
 
         Axes &getAxes() {return axes; };
         
-        void setAxes(const Axes &axes) { 
-            this->axes = axes;
-
-            // std::cout << "o: " << glm::to_string(axes.origin) << std::endl;
-        }
+        void setAxes(const Axes &axes) { this->axes = axes; }
         
         void setColor(vec3 c){
             this->color[0] = c;
@@ -154,13 +140,6 @@ class Cube{
                     vb.push_back(this->color[i].g);
                     vb.push_back(this->color[i].b); 
                     
-
-                    // vb.push_back(this->color[vexIndices[j]].r);
-                    // vb.push_back(this->color[vexIndices[j]].g);
-                    // vb.push_back(this->color[vexIndices[j]].b);
-
-                    //std::cout << i << ": " << "(" << this->color[i].r << ", " << this->color[i].g << ", " << this->color[i].b << ")" << std::endl;
-
                     
                     // vertex texture coords
                     switch(j) {

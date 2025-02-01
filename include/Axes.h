@@ -21,10 +21,6 @@ class Axes{
                              up.x, up.y, up.z, 0,
                              forward.x, forward.y, forward.z, 0,
                              origin.x, origin.y, origin.z, 1);
-            // return glm::mat4(right.x, up.x, forward.x, 0,
-            //                  right.y, up.y, forward.y, 0,
-            //                  right.z, up.z, forward.z, 0,
-            //                  origin.x, origin.y, origin.z, 1);
         };
 
 
