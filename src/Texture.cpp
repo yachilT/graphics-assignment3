@@ -17,6 +17,7 @@ Texture::Texture(const std::string& filepath)
 
     // Assigns the texture to a Texture Unit
     GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+    std::cout << "Texture ID: " << m_RendererID << std::endl;
 
     // Configures the type of algorithm that is used to make the image smaller or bigger
     GLCall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR));

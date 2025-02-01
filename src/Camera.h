@@ -1,7 +1,7 @@
 #pragma once
 
 #define GLM_ENABLE_EXPERIMENTAL
-#define SCROLL_OFFSET 0.1f
+#define SCROLL_MULTI 0.5f
 #define ROTATE_ANGLE_SCALE 0.005f
 #define MOVE_SCALE 0.01f
 #define NUM_MIX 10

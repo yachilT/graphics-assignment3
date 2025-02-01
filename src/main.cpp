@@ -1,5 +1,8 @@
 #define GLM_ENABLE_EXPERIMENTAL 1
 #define SCALE 2.0f
+#define OUTLINE_TEX_SLOT 0
+#define WHITE_TEX_SLOT 1
+#define BACKGROUND_COL 13
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -73,7 +76,7 @@ void drawCube(Shader &shader, const Camera &camera, RubiksCube &cube, int i, boo
     shader.Bind();
     shader.SetUniform4f("u_Color", uniColor);
     shader.SetUniformMat4f("u_MVP", mvp);
-    shader.SetUniform1i("u_Texture", 1);
+    shader.SetUniform1i("u_Texture", picking ? 1 : 0);
     va.Bind();
     ib.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
@@ -135,10 +138,13 @@ int main(int argc, char* argv[])
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-        /* Create texture */
-        Texture texture1("res/textures/plane.png");
-        texture1.Bind(1);
 
+        /* Create texture */
+        Texture outline("res/textures/plane.png");
+        Texture white("res/textures/white.png");
+
+        outline.Bind(OUTLINE_TEX_SLOT);
+        white.Bind(WHITE_TEX_SLOT);
 
         
 
@@ -164,7 +170,7 @@ int main(int argc, char* argv[])
         while (!glfwWindowShouldClose(window))
         {
             /* Set white background color */
-            GLCall(glClearColor(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f));
+            GLCall(glClearColor(13 / 255.0f, 13 / 255.0f, 13 / 255.0f, 1.0f));
 
             /* Render here */
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -180,18 +186,16 @@ int main(int argc, char* argv[])
             glfwSwapBuffers(window);
 
             if (camera.picked) {
+                GLCall(glClearColor(0, 0, 0, 1.0f));
                 GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
                 for (int i = 0; i < CUBE_DIM * CUBE_DIM * CUBE_DIM; i++) {
                     drawCube(shader, camera, cube, i, true);
                 }
             }
-            
             /* Poll for and process events */
             glfwPollEvents();
         }
-            
     }
-    
 
     glfwTerminate();
     return 0;

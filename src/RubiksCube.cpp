@@ -41,7 +41,6 @@ RubiksCube::RubiksCube(vec3 pos) : localAxes(Axes(pos)) {
                 Axes axes(vec3((col - half), (row - half), (layer - half)));
                 axes.scale(.5f);
 
-                //std::cout << glm::to_string(glm::ivec3(row, col, layer)) << " == " << glm::to_string(axes.origin) << std::endl;
                 Cube *c = new Cube(axes);
                 cubes[indexFlatten(row, col, layer)] = c;
                 c->set_id(indexFlatten(row, col, layer) + 1);
@@ -305,6 +304,10 @@ void RubiksCube::moveY(float y_offset){
 }
 void RubiksCube::moveX(float x_offset){
     this->localAxes.origin.x += x_offset;
+}
+
+void RubiksCube::translate(vec3 translation) {
+    this->localAxes.translate(translation);
 }
 
 void RubiksCube::moveCenterX(int x_offset){

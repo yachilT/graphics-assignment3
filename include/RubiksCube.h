@@ -34,10 +34,13 @@ class RubiksCube{
         // array for each rotation axis as defined in rotation
         float absolute_rotations[3][CUBE_DIM];
 
+        // total angle of rotation for one press (90 or 45 degrees)
         float currDegree;
 
         vector<ivec3> getIndices(int fixed, int dir);
-        int num_mix;
+
+        //number of rotation left to do after mix
+        int num_mix; 
         
         
 
@@ -104,6 +107,8 @@ class RubiksCube{
 
         void moveX(float x_offset);
 
+        void translate(vec3 translation);
+
         void moveCenterX(int x_offset);
 
         void moveCenterY(int y_offset);
@@ -133,7 +138,7 @@ class RubiksCube{
         }
 
         vec3 worldToLocal(vec3 dir) {
-            glm::vec4 res = this->localAxes.globalToLocal() * glm::vec4(dir, 0.1f);
+            glm::vec4 res = this->localAxes.globalToLocalDir() * glm::vec4(dir, 0.1f);
             return vec3(res.x, res.y, res.z);
         }
 };

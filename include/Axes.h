@@ -28,7 +28,7 @@ class Axes{
         };
 
 
-        glm::mat4 globalToLocal() {
+        glm::mat4 globalToLocalDir() {
             return glm::mat4 (right.x, up.x, forward.x, 0, 
                               right.y, up.y, forward.y, 0,
                               right.z, up.z, forward.z, 0,

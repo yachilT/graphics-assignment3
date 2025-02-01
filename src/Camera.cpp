@@ -21,15 +21,11 @@ void Camera::SetPerspective(float near, float far, float FOV)
     m_Projection = glm::perspective(FOV, 1.0f, near, far);
 
     glm::vec3 right = glm::cross(m_Up, m_Orientation);
-    // std::cout << "right: " << glm::to_string(right) << std::endl;
     m_View = glm::mat4(right.x, m_Up.x, m_Orientation.x, 0,
                              right.y, m_Up.y, m_Orientation.y, 0,
                              -right.z, -m_Up.z, -m_Orientation.z, 0,
                              -m_Position.x, -m_Position.y, -m_Position.z, 1);
 
-    // m_View = glm::mat4(1.0f);//glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
-    // m_View[2][2]=-1.0f;
-    std::cout << glm::to_string(m_View) << std::endl;
 
 }
 
@@ -142,7 +138,7 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 break;
             case GLFW_KEY_P:
                 std::cout << "P Pressed" << std::endl;
-                camera->picked = true;
+                camera->picked = !camera->picked;
                 break;
             default:
                 break;
@@ -185,9 +181,8 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
         glReadPixels(currMouseX, viewport[3] - currMouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color_picked);
         int color_id = color_picked[0] | color_picked[1] << 8 | color_picked[2] << 16;
         int shapeID = color_id - 1;
-        std::cout << "color: " << (int)color_picked[0] << ", " << (int)color_picked[1] << ", " << (int)color_picked[2] << std::endl;
+        // std::cout << "color: " << (int)color_picked[0] << ", " << (int)color_picked[1] << ", " << (int)color_picked[2] << std::endl;
         selected = camera->getCube()->pickCube(color_picked);
-            
     }
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -214,8 +209,7 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
         vec3 translation(-x * camera->m_Far * camera->m_Near * 2 * glm::tan(M_PI / 4.0f) / (viewport[2] * z),
          y * camera->m_Far * camera->m_Near * 2 * glm::tan(M_PI / 4.0f) / (viewport[3] * z), 0);
         if (!selected) {
-            camera->getCube()->moveX(translation.x);
-            camera->getCube()->moveY(translation.y);
+            camera->getCube()->translate(translation);
         }
         else {
             selected->getAxes().translate(camera->getCube()->worldToLocal(translation));
@@ -234,12 +228,12 @@ void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffse
     }
     if(scrollOffsetY > 0){
         std::cout << "SCROLL UP Motion" << std::endl;
-        camera->getCube()->moveZ(-SCROLL_OFFSET);
     }
     else if(scrollOffsetY < 0){
         std::cout << "SCROLL DOWN Motion" << std::endl;
-        camera->getCube()->moveZ(SCROLL_OFFSET);
     }
+
+    camera->getCube()->translate(vec3(0, 0, -scrollOffsetY * SCROLL_MULTI));
     
 }
 
